@@ -9,6 +9,7 @@
   "author": "Andrew Mead",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.15.2",
     "express": "^4.13.4",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",

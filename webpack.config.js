@@ -13,7 +13,9 @@ module.exports = {
             Player: 'app/components/Player.jsx',
             About: 'app/components/About.jsx',
             News: 'app/components/News.jsx',
-            PlayerForm: 'app/components/PlayerForm.jsx'
+            PlayerForm: 'app/components/PlayerForm.jsx',
+            PlayerMessage: 'app/components/PlayerMessage.jsx',
+            getLastArtist: 'app/api/getLastArtist.jsx'
         }
     },
     module: {

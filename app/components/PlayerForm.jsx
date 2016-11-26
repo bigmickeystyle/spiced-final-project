@@ -4,7 +4,10 @@ var PlayerForm = React.createClass({
     onFormSubmit: function (e) {
         e.preventDefault();
         var enteredArtist= this.refs.artist.value;
-        this.props.onSubmit(enteredArtist);
+        if (enteredArtist){
+            this.refs.artist.value = '';
+            this.props.onSubmit(enteredArtist);
+        }
     },
 
     render: function(){
