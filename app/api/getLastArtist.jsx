@@ -1,7 +1,7 @@
 var axios = require('axios');
 
 const API_KEY = '71ac466489df4f2214fb99c9119071d3';
-const LAST_FM_URL = 'http://ws.audioscrobbler.com/2.0/';
+const LAST_FM_URL = 'https://ws.audioscrobbler.com/2.0/';
 
 module.exports = {
     getTopAlbums: function(artist){

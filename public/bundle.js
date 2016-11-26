@@ -26607,7 +26607,7 @@
 	var axios = __webpack_require__(239);
 
 	var API_KEY = '71ac466489df4f2214fb99c9119071d3';
-	var LAST_FM_URL = 'http://ws.audioscrobbler.com/2.0/';
+	var LAST_FM_URL = 'https://ws.audioscrobbler.com/2.0/';
 
 	module.exports = {
 	    getTopAlbums: function getTopAlbums(artist) {
