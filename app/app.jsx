@@ -6,7 +6,11 @@ var Player = require('Player');
 var About = require('About');
 var News = require('News');
 
+
 require('style!css!foundation-sites/dist/foundation.min.css');
+require('style!css!sass!appStyles');
+
+
 $(document).foundation();
 
 ReactDOM.render(

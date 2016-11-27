@@ -11,6 +11,22 @@ var Player = React.createClass({
         };
     },
 
+    componentDidMount: function (){
+        var artist = this.props.location.query.artist;
+        if (artist) {
+            this.handleNewArtist(artist);
+            window.location.hash = '#/';
+        }
+    },
+
+    componentWillReceiveProps: function (newProps) {
+        var artist = newProps.location.query.artist;
+        if (artist) {
+            this.handleNewArtist(artist);
+            window.location.hash = '#/';
+        }
+    },
+
     handleNewArtist: function (artist) {
         this.setState({
             isLoading: true

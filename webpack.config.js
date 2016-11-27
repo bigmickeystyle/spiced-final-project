@@ -30,7 +30,8 @@ module.exports = {
             News: 'app/components/News.jsx',
             PlayerForm: 'app/components/PlayerForm.jsx',
             PlayerMessage: 'app/components/PlayerMessage.jsx',
-            getLastArtist: 'app/api/getLastArtist.jsx'
+            getLastArtist: 'app/api/getLastArtist.jsx',
+            appStyles: 'app/styles/app.scss'
         }
     },
     module: {
