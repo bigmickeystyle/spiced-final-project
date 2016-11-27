@@ -26,6 +26,7 @@ var Player = React.createClass({
         }).catch(function(err){
             console.log(err);
             thisState.setState({
+                isLoading: false,
                 artist: artist,
                 topAlbum: 'apologies, no album found for this artist'
             });
