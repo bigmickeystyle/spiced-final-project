@@ -12,10 +12,12 @@ var PlayerForm = React.createClass({
 
     render: function(){
         return (
-            <form onSubmit={this.onFormSubmit}>
-                <input ref="artist" placeholder="Enter Artist"></input>
-                <button>Submit</button>
-            </form>
+            <div>
+                <form onSubmit={this.onFormSubmit}>
+                    <input ref="artist" placeholder="Enter Artist"></input>
+                    <button>Submit</button>
+                </form>
+            </div>
         );
     }
 });

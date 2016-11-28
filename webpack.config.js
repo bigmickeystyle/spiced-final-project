@@ -31,7 +31,8 @@ module.exports = {
             PlayerForm: 'app/components/PlayerForm.jsx',
             PlayerMessage: 'app/components/PlayerMessage.jsx',
             getLastArtist: 'app/api/getLastArtist.jsx',
-            appStyles: 'app/styles/app.scss'
+            appStyles: 'app/styles/app.scss',
+            jQuery: 'node_modules/jquery/dist/jquery.min.js'
         }
     },
     module: {
