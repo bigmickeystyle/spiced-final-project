@@ -31,8 +31,10 @@ module.exports = {
             PlayerForm: 'app/components/PlayerForm.jsx',
             PlayerMessage: 'app/components/PlayerMessage.jsx',
             getLastArtist: 'app/api/getLastArtist.jsx',
+            getSpotifyAlbumId: 'app/api/getSpotifyAlbumId.jsx',
             appStyles: 'app/styles/app.scss',
-            jQuery: 'node_modules/jquery/dist/jquery.min.js'
+            jQuery: 'node_modules/jquery/dist/jquery.min.js',
+            PlayerWidget: 'app/components/PlayerWidget'
         }
     },
     module: {

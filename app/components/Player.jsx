@@ -2,6 +2,8 @@ var React = require('react');
 var PlayerForm = require('PlayerForm');
 var PlayerMessage = require('PlayerMessage');
 var getLastArtist = require('getLastArtist');
+var PlayerWidget = require('PlayerWidget');
+var getSpotifyAlbumId = require('getSpotifyAlbumId');
 
 var Player = React.createClass({
 
@@ -39,6 +41,13 @@ var Player = React.createClass({
                 artist: artist,
                 topAlbum: topAlbum
             });
+        }).then(function(){
+            getSpotifyAlbumId.getAlbum(thisState.state.artist, thisState.state.topAlbum).then(function(uri){
+                thisState.setState({
+                    uri: uri
+                });
+                console.log(thisState.state);
+            });
         }).catch(function(err){
             console.log(err);
             thisState.setState({
@@ -50,7 +59,7 @@ var Player = React.createClass({
     },
 
     render: function () {
-        var {isLoading, artist, topAlbum} = this.state;
+        var {isLoading, artist, topAlbum, uri} = this.state;
         function renderMessage(){
             if (isLoading) {
                 return (
@@ -58,7 +67,10 @@ var Player = React.createClass({
                 );
             } else if (artist && topAlbum) {
                 return (
-                    <PlayerMessage artist={artist} topAlbum={topAlbum}/>
+                    <div>
+                        <PlayerMessage artist={artist} topAlbum={topAlbum}/>
+                        <PlayerWidget uri={uri} />
+                    </div>
                 );
             }
         }

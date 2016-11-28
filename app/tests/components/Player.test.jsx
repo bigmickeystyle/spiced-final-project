@@ -10,4 +10,5 @@ describe('Player', () => {
     it('should exist', () => {
         expect(Player).toExist();
     });
+
 });
