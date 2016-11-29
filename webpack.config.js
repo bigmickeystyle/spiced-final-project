@@ -29,12 +29,13 @@ module.exports = {
             About: 'app/components/About.jsx',
             News: 'app/components/News.jsx',
             PlayerForm: 'app/components/PlayerForm.jsx',
-            PlayerMessage: 'app/components/PlayerMessage.jsx',
+            SearchResults: 'app/components/SearchResults.jsx',
             getLastArtist: 'app/api/getLastArtist.jsx',
             getSpotifyAlbumId: 'app/api/getSpotifyAlbumId.jsx',
+            genius: 'app/api/genius.jsx',
             appStyles: 'app/styles/app.scss',
             jQuery: 'node_modules/jquery/dist/jquery.min.js',
-            PlayerWidget: 'app/components/PlayerWidget'
+            PlayerWidget: 'app/components/PlayerWidget.jsx'
         }
     },
     module: {

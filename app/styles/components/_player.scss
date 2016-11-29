@@ -1,0 +1,19 @@
+.album-results-container {
+    border: 1px black solid;
+    display: inline-flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+    width: 300px;
+    
+}
+
+.player-container {
+    background: lightgrey;
+    display: inline-flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+}

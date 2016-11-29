@@ -10,8 +10,10 @@ module.exports = {
         var albumURL = `${SPOTIFY_SEARCH_URL}?q=album:${encodedAlbum}%20artist:${encodedArtist}&type=album`;
         console.log(albumURL);
         return axios.get(albumURL).then(function(resp){
-            console.log(resp.data.albums.items);
-            return resp.data.albums.items[0].uri;
+            if (resp.data.albums.items[0]){
+                console.log("found album");
+                return resp.data.albums.items[0].uri;
+            }
         }).catch(function(err){
             return err;
         });

@@ -1,8 +1,9 @@
 var React = require('react');
 var PlayerForm = require('PlayerForm');
-var PlayerMessage = require('PlayerMessage');
+var SearchResults = require('SearchResults');
 var getLastArtist = require('getLastArtist');
 var PlayerWidget = require('PlayerWidget');
+var genius = require('genius');
 var getSpotifyAlbumId = require('getSpotifyAlbumId');
 
 var Player = React.createClass({
@@ -35,18 +36,13 @@ var Player = React.createClass({
         });
         var thisState = this;
         getLastArtist.getTopAlbums(artist).then(function(albums){
-            var topAlbum = albums.album[0].name;
+            var topAlbumNames = albums.album.map(function(album){
+                return album.name;
+            });
             thisState.setState({
                 isLoading: false,
                 artist: artist,
-                topAlbum: topAlbum
-            });
-        }).then(function(){
-            getSpotifyAlbumId.getAlbum(thisState.state.artist, thisState.state.topAlbum).then(function(uri){
-                thisState.setState({
-                    uri: uri
-                });
-                console.log(thisState.state);
+                topAlbums: topAlbumNames
             });
         }).catch(function(err){
             console.log(err);
@@ -58,26 +54,55 @@ var Player = React.createClass({
         });
     },
 
+    handleNewClickedAlbum: function (artist, album) {
+        var thisState = this;
+        getSpotifyAlbumId.getAlbum(artist, album).then(function(uri){
+            thisState.setState({
+                uri: uri
+            });
+        });
+    },
+
     render: function () {
-        var {isLoading, artist, topAlbum, uri} = this.state;
-        function renderMessage(){
+        var {isLoading, artist, topAlbums, uri} = this.state;
+        var handleNewClickedAlbum = this.handleNewClickedAlbum;
+        function displayAlbums(){
+            return (
+                topAlbums.map(function(album, i){
+                    return <SearchResults artist={artist} topAlbum={album} onClickedAlbum={handleNewClickedAlbum} key={i}/>;
+                })
+            );
+        }
+        function renderResults(){
             if (isLoading) {
                 return (
                     <h2>Searching</h2>
                 );
-            } else if (artist && topAlbum) {
+            } else if (artist && topAlbums && uri) {
                 return (
                     <div>
-                        <PlayerMessage artist={artist} topAlbum={topAlbum}/>
-                        <PlayerWidget uri={uri} />
+                        <div className="album-results-container">
+                            {displayAlbums()}
+                            <PlayerWidget uri={uri} />
+                        </div>
+
+                    </div>
+                );
+            } else if (artist && topAlbums){
+                return (
+                    <div>
+                        <div className="album-results-container">
+                            {displayAlbums()}
+                        </div>
+                        <p>sorry, this is not available to play</p>
                     </div>
                 );
             }
         }
         return (
-            <div>
+            <div className="player-container">
                 <PlayerForm onSubmit={this.handleNewArtist}/>
-                {renderMessage()}
+                {renderResults()}
             </div>
         );
     }
