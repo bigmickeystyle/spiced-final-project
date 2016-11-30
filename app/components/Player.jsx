@@ -14,19 +14,59 @@ var Player = React.createClass({
         };
     },
 
+    resize: function(pane, eventStart) {
+        var startCssWidth = parseInt(($(`#${pane}`).css('width')));
+        var startLeft = eventStart.pageX;
+        var startCssHeight = parseInt(($(`#${pane}`).css('height')));
+        var startTop = eventStart.pageY;
+        $(document).on('mousemove.arrowmove', function(e){
+            e.preventDefault();
+            var movementX = e.pageX;
+            var movementY = e.pageY;
+            $(`#${pane}`).css({width: movementX - startLeft + startCssWidth, height: movementY - startTop + startCssHeight});
+            $(`#${pane}Arrow`).css({top: movementY - 10, left: movementX - 10});
+        });
+        $(document).on('mouseup.arrowstop', function(){
+            console.log('stopped');
+            $(this).off('.arrowmove');
+            $(this).off('.arrowstop');
+        });
+    },
+
+    move: function(pane, eventStart) {
+        var startLeft = eventStart.pageX - parseInt($(`#${pane}`).css('left'));
+        var startTop = eventStart.pageY - parseInt($(`#${pane}`).css('top'));
+        var arrowLeft = eventStart.pageX - parseInt(($(`#${pane}Arrow`).css('left')));
+        var arrowTop = eventStart.pageY - parseInt(($(`#${pane}Arrow`).css('top')));
+        $(document).on('mousemove.boxmove', function(e){
+            e.preventDefault();
+            $(`#${pane}`).css({left: e.pageX - startLeft, top: e.pageY - startTop});
+            $(`#${pane}Arrow`).css({left: e.pageX - arrowLeft, top: e.pageY - arrowTop});
+        });
+        $(document).on('mouseup.boxstop', function(){
+            console.log('stopped');
+            $(this).off('.boxmove');
+            $(this).off('.boxstop');
+        });
+    },
+
     componentDidMount: function (){
-        var artist = this.props.location.query.artist;
-        if (artist) {
-            this.handleNewArtist(artist);
-            window.location.hash = '#/';
+        if(this.props.location){
+            var artist = this.props.location.query.artist;
+            if (artist) {
+                this.handleNewArtist(artist);
+                window.location.hash = '#/';
+            }
         }
     },
 
     componentWillReceiveProps: function (newProps) {
-        var artist = newProps.location.query.artist;
-        if (artist) {
-            this.handleNewArtist(artist);
-            window.location.hash = '#/';
+        if(newProps.location){
+            var artist = newProps.location.query.artist;
+            if (artist) {
+                this.handleNewArtist(artist);
+                window.location.hash = '#/';
+            }
         }
     },
 
@@ -78,31 +118,37 @@ var Player = React.createClass({
                 return (
                     <h2>Searching</h2>
                 );
-            } else if (artist && topAlbums && uri) {
-                return (
-                    <div>
-                        <div className="album-results-container">
-                            {displayAlbums()}
-                            <PlayerWidget uri={uri} />
-                        </div>
-
-                    </div>
-                );
             } else if (artist && topAlbums){
                 return (
                     <div>
                         <div className="album-results-container">
                             {displayAlbums()}
                         </div>
-                        <p>sorry, this is not available to play</p>
                     </div>
                 );
             }
         }
+        function renderSpotify(){
+            if (uri) {
+                return (
+                    <PlayerWidget uri={uri}/>
+                );
+            }
+        }
         return (
-            <div className="player-container">
-                <PlayerForm onSubmit={this.handleNewArtist}/>
-                {renderResults()}
+            <div>
+                <div id="player-pane" className="player-container" onMouseDown={this.move.bind(null, 'player-pane')}>
+                    <PlayerForm onSubmit={this.handleNewArtist}/>
+                </div>
+                <img id="player-paneArrow" src="./images/arrow.jpg" onMouseDown={this.resize.bind(null, 'player-pane')}/>
+                <div id="second-pane" className="player-container" onMouseDown={this.move.bind(null, 'second-pane')}>
+                    {renderResults()}
+                </div>
+                <img id="second-paneArrow" src="./images/arrow.jpg" onMouseDown={this.resize.bind(null, 'second-pane')}/>
+                <div id="third-pane" className="player-container" onMouseDown={this.move.bind(null, 'third-pane')}>
+                    {renderSpotify()}
+                </div>
+                <img id="third-paneArrow" src="./images/arrow.jpg" onMouseDown={this.resize.bind(null, 'third-pane')}/>
             </div>
         );
     }

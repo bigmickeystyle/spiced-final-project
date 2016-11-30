@@ -9,8 +9,8 @@ var SearchResults = React.createClass({
     render: function() {
         var {topAlbum} = this.props;
         return (
-            <div onClick={this.onClickedAlbum}>
-                <h3>{topAlbum}</h3>
+            <div className="search-result" onClick={this.onClickedAlbum}>
+                <p>{topAlbum}</p>
             </div>
         );
     }
