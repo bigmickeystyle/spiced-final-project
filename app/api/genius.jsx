@@ -1,10 +1,14 @@
 var axios = require('axios');
 
 module.exports = {
-    getSong: function(songId){
+    getSong: function(artist, track){
         return axios({
             method: 'GET',
-            url: `/lyrics`
+            url: `/lyrics`,
+            params: {
+                artist: artist,
+                track: track
+            }
         }).then(function(resp){
             return (resp.data.lyrics);
         }).catch(function(err){

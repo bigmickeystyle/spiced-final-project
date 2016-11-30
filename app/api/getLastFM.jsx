@@ -17,6 +17,18 @@ module.exports = {
         });
     },
 
+    getAlbumDetails: function(artist, album){
+        var encodedArtist = encodeURIComponent(artist);
+        var encodedAlbum = encodeURIComponent(album);
+        var albumUrl = `${LAST_FM_URL}?method=album.getinfo&api_key=${API_KEY}&artist=${encodedArtist}&album=${encodedAlbum}&format=json`;
+        console.log(albumUrl);
+        return axios.get(albumUrl).then(function(resp){
+            return resp.data.album;
+        }).catch(function(err){
+            console.log('error', err);
+        });
+    },
+
     getCurrentTracks: function(user){
         var getCurrentTracksUrl = `${LAST_FM_URL}?method=user.getrecenttracks&user=${user}&api_key=${API_KEY}&format=json`;
         console.log(getCurrentTracksUrl);

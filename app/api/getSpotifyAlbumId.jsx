@@ -11,8 +11,7 @@ module.exports = {
         console.log(albumURL);
         return axios.get(albumURL).then(function(resp){
             if (resp.data.albums.items[0]){
-                console.log("found album");
-                return resp.data.albums.items[0].uri;
+                return resp.data.albums.items[0];
             }
         }).catch(function(err){
             return err;

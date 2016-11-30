@@ -5,8 +5,8 @@ const API_TOKEN = 'VvdON_1hLZXZhK9Isbez6awd4LBvNksFalh6CiV1d4VRP8YxQKzyPRbFTMWV3
 const GENIUS_URL = 'https://api.genius.com/';
 
 module.exports = {
-    getPath: function(artist, song){
-        var encodedString = encodeURIComponent(`${artist}+${song}`);
+    getPath: function(artist, track){
+        var encodedString = encodeURIComponent(`${artist}+${track}`);
         console.log(`${GENIUS_URL}search?q=${encodedString}`);
         return axios({
             method: 'GET',
@@ -28,9 +28,4 @@ module.exports = {
             return lyrics;
         });
     }
-
-            // request(url, function (error, response, html) {
-            //     if (!error && response.statusCode == 200) {
-            //         var $ = cheerio.load(html);
-
 };
