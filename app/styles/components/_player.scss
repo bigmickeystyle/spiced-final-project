@@ -17,35 +17,30 @@
     align-content: flex-start;
     height: 300px;
     position: absolute;
-    overflow: auto;
+    overflow: hidden;
     justify-content: center;
 
 }
 
-#player-paneArrow {
+#search-barArrow {
     position: absolute;
     height: 20px;
     width: 20px;
-    left: 245px;
-    top: 124px;
     z-index: 2;
 }
 
-#second-paneArrow {
+#search-resultsArrow {
     position: absolute;
     height: 20px;
     width: 20px;
-    left: 680px;
-    top: 581px;
+
     z-index: 4;
 }
 
-#third-paneArrow {
+#spotify-resultsArrow {
     position: absolute;
     height: 20px;
     width: 20px;
-    left: 228px;
-    top: 481px;
     z-index: 6;
 }
 
@@ -53,8 +48,7 @@
     position: absolute;
     height: 20px;
     width: 20px;
-    left: 545px;
-    top: 432px;
+
     z-index: 8;
 }
 
@@ -62,48 +56,45 @@
     position: absolute;
     height: 20px;
     width: 20px;
-    left: 747px;
-    top: 631px;
     z-index: 10;
 }
 
-#player-pane{
-    top: 100px;
-    left: 20px;
+#scrobble-paneArrow {
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    z-index: 12;
+}
+
+#search-bar{
+
     background: lightgrey;
     height: 25px;
 }
 
-#second-pane {
-    top: 300px;
-    left: 200px;
-    width: 500px;
+#search-results {
     background: black;
     z-index: 3;
 }
 
-#third-pane {
-    top: 200px;
-    left: 150px;
-    width: 100px;
+#spotify-results {
     background: #191414;
     z-index: 5;
 }
 
 #tracks-pane {
-    top: 150px;
-    left: 250px;
-    width: 315px;
     background: yellow;
     z-index: 7;
 }
 
 #lyrics-pane {
-    top: 350px;
-    left: 450px;
-    width: 315px;
     background: green;
     z-index: 9;
+}
+
+#scrobble-pane {
+    background: orange;
+    z-index: 11;
 }
 
 .search-result {
@@ -119,4 +110,8 @@
 
 body{
     position: absolute;
+}
+
+h2 {
+    color: white;
 }
