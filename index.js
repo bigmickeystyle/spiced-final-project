@@ -1,6 +1,8 @@
 var express = require('express');
 var getGenius = require('./app/servercomponents/getGenius');
-
+var getMB = require('./app/servercomponents/getMB');
+var getDiscogs = require('./app/servercomponents/getDiscogs')
+var dbConnect = require('./app/servercomponents/dbConnect');
 // Create our app
 var app = express();
 
@@ -16,6 +18,15 @@ app.get('/lyrics', function(req, res) {
         });
     }).catch(function(err){
         console.log(err);
+    });
+});
+
+app.get('/albums', function(req, res){
+    getDiscogs.getAlbums(req.query.artist).then(function(albums){
+        res.json({
+            sucess: true,
+            albums: albums
+        });
     });
 });
 

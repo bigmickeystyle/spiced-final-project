@@ -31,9 +31,8 @@ module.exports = {
 
     getCurrentTracks: function(user){
         var getCurrentTracksUrl = `${LAST_FM_URL}?method=user.getrecenttracks&user=${user}&api_key=${API_KEY}&format=json`;
-        console.log(getCurrentTracksUrl);
         return axios.get(getCurrentTracksUrl).then(function(resp){
-            console.log(resp.data);
+            return resp.data.recenttracks.track;
         });
     }
 };
