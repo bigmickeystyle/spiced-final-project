@@ -1,27 +1,33 @@
 var React = require('react');
 var getLastFM = require('getLastFM');
 var getDiscog = require('getDiscog');
+var getYoutube = require('getYoutube');
 var genius = require('genius');
 var PlayerContainer = require('PlayerContainer');
 var PlayerForm = require('PlayerForm');
-var SearchResults = require('SearchResults');
+var AlbumResults = require('AlbumResults');
 var PlayerWidget = require('PlayerWidget');
 var Tracks = require('Tracks');
 var Lyrics = require('Lyrics');
+var Video = require('Video');
 var RecentScrobbles = require('RecentScrobbles');
+var ArtistResults = require('ArtistResults');
 
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
 
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-
-var getSpotifyAlbumId = require('getSpotifyAlbumId');
+var getSpotify = require('getSpotify');
 
 var Player = React.createClass({
 
     getInitialState: function(){
         return {
-            isLoading: false,
+            isLoadingArtists: false,
             albumLoading: false,
-            searchSubmitted:false,
+            artistSearchSubmitted:false,
             loadSpotify: false,
             searchBar: true,
             recentScrobbles: true,
@@ -85,64 +91,77 @@ var Player = React.createClass({
 
     handleNewArtist: function (artist) {
         this.setState({
-            isLoading: true,
-            searchSubmitted: true
+            isLoadingArtists: true,
+            artistSearchSubmitted: true
         });
         var thisState = this;
-        getDiscog.getAlbums(artist).then(function(albums){
-            var topAlbumNames = albums.map(function(album){
-                if(album.format.indexOf("Unofficial Release") == -1){
-                    return album.title.split(' - ')[1];
-                }
-            }).filter(function(album){
-                return album != undefined;
-            });
+        getSpotify.searchArtist(artist).then(function(artists){
             thisState.setState({
-                isLoading: false,
-                artist: artist,
-                topAlbums: topAlbumNames
+                isLoadingArtists: false,
+                artists: artists
             });
         }).catch(function(err){
             console.log(err);
             thisState.setState({
-                isLoading: false,
+                isLoadingArtists: false,
                 artist: artist,
                 topAlbum: 'apologies, no album found for this artist'
             });
         });
     },
 
-    handleNewClickedAlbum: function (artist, album) {
+    handleNewAlbum: function(album) {
+        console.log(album);
+    },
+
+    handleNewTrack: function(track) {
+        console.log(track);
+    },
+
+    handleNewClickedAlbum: function (id) {
         var thisState = this;
         thisState.setState({
-            albumLoading: true,
-            loadSpotify: true
+            albumLoading: true
         });
-        getSpotifyAlbumId.getAlbum(artist, album).then(function(albumSpotDetails){
+        getSpotify.getAlbum(id).then(function(albumSpotDetails){
             thisState.setState({
                 albumLoading: false,
-                uri: albumSpotDetails.uri
-            });
-            getLastFM.getAlbumDetails(albumSpotDetails.artists[0].name, album).then(function(albumLastDetails){
-                console.log(albumLastDetails);
-                thisState.setState({
-                    albumTracks: albumLastDetails.tracks.track
-                });
+                albumTracks: albumSpotDetails.tracks.items
             });
         });
     },
 
-    handleNewClickedTrack: function(artist, track){
+    handleNewClickedTrack: function(artist, track, id){
+        getYoutube.getVideo(artist, track).then(function(videoDetails){
+            var firstResult = videoDetails[0].id.videoId;
+            $('#player').attr('src', `https://www.youtube.com/embed/${firstResult}?showinfo=0&enablejsapi=1&amp;&amp;widgetid=1`);
+        });
         var thisState = this;
         thisState.setState({
-            lyricsLoading: true
+            lyricsLoading: true,
+            loadSpotify: true,
+            uri: id
         });
+
         genius.getSong(artist, track).then(function(lyrics){
             thisState.setState({
                 lyrics: lyrics,
                 lyricsLoading: false
             });
 
+        });
+    },
+
+    handleNewClickedArtist: function (artist, id) {
+        var thisState = this;
+        thisState.setState({
+            albumsLoading: true
+        });
+        getSpotify.getAlbums(id).then(function(albums){
+            thisState.setState({
+                albumsLoading: false,
+                albums: albums
+            });
         });
     },
 
@@ -156,27 +175,35 @@ var Player = React.createClass({
     },
 
     render: function () {
-        var {isLoading, artist, topAlbums, uri, albumTracks, lyrics, albumLoading, lyricsLoading, searchSubmitted, loadSpotify, searchBar, recentScrobbles, username} = this.state;
-        var {handleNewClickedAlbum, handleNewClickedTrack, handleNewArtist, handleScrobbles, move, resize} = this;
+        var {isLoadingArtists, artist, artists, albums, uri, albumTracks, lyrics, albumLoading, lyricsLoading, artistSearchSubmitted, loadSpotify, searchBar, recentScrobbles, username} = this.state;
+        var {handleNewClickedAlbum, handleNewClickedTrack, handleNewClickedArtist, handleNewArtist, handleNewAlbum, handleNewTrack, handleScrobbles, move, resize} = this;
 
-        function displayAlbums(){
+        function renderAlbumResults(){
             return (
-                topAlbums.map(function(album, i){
-                    return <SearchResults artist={artist} topAlbum={album} onClickedAlbum={handleNewClickedAlbum} key={i}/>;
+                albums.map(function(album, i){
+                    return <AlbumResults artist={artist} id={album.id} album={album.name} onClickedAlbum={handleNewClickedAlbum} key={i}/>;
                 })
             );
         }
 
-        function renderResults(){
-            if (isLoading) {
+        function displayArtists(){
+            return (
+                artists.map(function(artistResult, i){
+                    return <ArtistResults artist={artistResult.name} id={artistResult.id} onClickedArtist={handleNewClickedArtist} key={i}/>;
+                })
+            );
+        }
+
+        function renderArtistResults(){
+            if (isLoadingArtists) {
                 return (
                     <h2>Searching</h2>
                 );
-            } else if (artist && topAlbums){
+            } else if (artists){
                 return (
                     <div>
                         <div className="album-results-container">
-                            {displayAlbums()}
+                            {displayArtists()}
                         </div>
                     </div>
                 );
@@ -200,7 +227,7 @@ var Player = React.createClass({
             if(albumTracks) {
                 return(
                     albumTracks.map(function(track, i){
-                        return <Tracks track={track.name} artist={track.artist.name} onClickedTrack={handleNewClickedTrack} key={i} />;
+                        return <Tracks track={track.name} artist={track.artists[0].name} id={track.uri} onClickedTrack={handleNewClickedTrack} key={i} />;
                     })
                 );
             }
@@ -224,7 +251,6 @@ var Player = React.createClass({
         }
 
         function renderRecentScrobbles(name){
-            console.log(recentScrobbles);
             if (Array.isArray(recentScrobbles)){
                 return recentScrobbles.map(function(track, i){
                     return <RecentScrobbles track={track.name} artist={track.artist['#text']} album={track.album['#text']} date={track.date['#text']} user={name} onGenerate={handleScrobbles} key={i}/>;
@@ -261,15 +287,23 @@ var Player = React.createClass({
             var renderArray=[];
             var renderKey = 0;
             if(searchBar){
-                renderArray.push(newContainer(renderKey, <PlayerForm onSubmit={handleNewArtist}/>, 'search-bar', 100, 20));
+                renderArray.push(newContainer(renderKey,
+                    <PlayerForm onArtistSubmit={handleNewArtist} onAlbumSubmit={handleNewAlbum} onTrackSubmit={handleNewTrack}/>,
+                    'search-bar', 100, 20));
+                renderKey++;
+                renderArray.push(<Video />);
                 renderKey++;
             }
             if(loadSpotify) {
-                renderArray.push(newContainer(renderKey, renderSpotify(), 'spotify-results', 250, 320));
+                renderArray.push(renderSpotify());
                 renderKey++;
             }
-            if(searchSubmitted){
-                renderArray.push(newContainer(renderKey, renderResults(), 'search-results', 200, 220));
+            if(artistSearchSubmitted){
+                renderArray.push(newContainer(renderKey, renderArtistResults(), 'artist-results', 200, 220));
+                renderKey++;
+            }
+            if(albums){
+                renderArray.push(newContainer(renderKey, renderAlbumResults(), 'album-results', 400, 620));
                 renderKey++;
             }
             if (albumTracks){

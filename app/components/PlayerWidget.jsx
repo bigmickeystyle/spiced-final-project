@@ -1,5 +1,4 @@
 var React = require('react');
-var $ = require('jQuery');
 
 var PlayerWidget = React.createClass({
     onIframeClick: function() {
@@ -10,7 +9,7 @@ var PlayerWidget = React.createClass({
     render: function(){
         return (
             <div onClick={this.onIframeClick}>
-                <iframe src={`https://embed.spotify.com/?uri=${this.props.uri}`} width="300" height="600" frameBorder="0" allowTransparency="true"></iframe>
+                <iframe src={`https://embed.spotify.com/?uri=${this.props.uri}`} width="300" height="80" frameBorder="0" allowTransparency="true"></iframe>
             </div>
         );
     }

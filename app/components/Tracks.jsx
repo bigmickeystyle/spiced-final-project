@@ -2,13 +2,13 @@ var React = require('react');
 
 var Tracks = React.createClass({
     onClickedTrack: function() {
-        var {artist, track, onClickedTrack} = this.props;
-        onClickedTrack(artist, track);
+        var {artist, track, id, onClickedTrack} = this.props;
+        onClickedTrack(artist, track, id);
     },
     render: function() {
-        var {track} = this.props;
+        var {track, id} = this.props;
         return (
-            <div className="search-result" onClick={this.onClickedTrack}>
+            <div className="search-result" id={id} onClick={this.onClickedTrack}>
                 <p>{track}</p>
             </div>
         );
