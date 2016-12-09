@@ -3,6 +3,7 @@ var getGenius = require('./app/servercomponents/getGenius');
 var getMB = require('./app/servercomponents/getMB');
 var getDiscogs = require('./app/servercomponents/getDiscogs')
 var dbConnect = require('./app/servercomponents/dbConnect');
+var getBingNews = require('./app/servercomponents/getBingNews');
 // Create our app
 var app = express();
 
@@ -18,6 +19,16 @@ app.get('/lyrics', function(req, res) {
         });
     }).catch(function(err){
         console.log(err);
+    });
+});
+
+app.get('/news', function(req, res) {
+    console.log("getting news for", req.query.artist);
+    getBingNews.music(req.query.artist).then(function(response){
+        res.json({
+            success:true,
+            news: response.value
+        });
     });
 });
 

@@ -8,7 +8,7 @@ var SearchResults = React.createClass({
     render: function() {
         var {album, id} = this.props;
         return (
-            <div className="album-result" id={id} onClick={this.onClickedAlbum}>
+            <div className="album-result" id={id} onDoubleClick={this.onClickedAlbum}>
                 <p>{album}</p>
             </div>
         );

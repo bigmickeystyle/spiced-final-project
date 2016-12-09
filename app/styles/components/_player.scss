@@ -17,95 +17,71 @@
     position: absolute;
     overflow: hidden;
     justify-content: center;
-
 }
 
 .whole-page {
     width: 100%;
     height: 100%;
     position: fixed;
+    top: 0;
+    left: 0;
 }
 
 .top-bar {
-    display: none;
+    width: 100%;
+    z-index: 20;
+    position: fixed;
 }
 
-#search-barArrow {
-    position: absolute;
-    height: 20px;
-    width: 20px;
-    z-index: 16;
-}
 
 .arrow {
     position: absolute;
     height: 20px;
     width: 20px;
+    display: none;
 }
 
 .arrow:hover {
     cursor: grab;
 }
 
-#artist-resultsArrow {
-    z-index: 4;
-}
-
-#spotify-resultsArrow {
-    z-index: 6;
-}
-
-#tracks-paneArrow {
-    z-index: 8;
-}
-
-#lyrics-paneArrow {
-    z-index: 10;
-}
-
-#scrobble-paneArrow {
-    z-index: 12;
-}
-
-#album-resultsArrow {
-    z-index: 14;
-}
-
-
-#search-bar{
-    background: lightgrey;
-    height: 25px;
-    z-index: 15;
-}
 
 #artist-results {
     background: black;
-    z-index: 3;
 }
 
 #spotify-results {
     background: #191414;
-    z-index: 5;
 }
 
 #tracks-pane {
     background: yellow;
-    z-index: 7;
 }
 
 #lyrics-pane {
     background: green;
-    z-index: 9;
 }
 
 #scrobble-pane {
     background: orange;
-    z-index: 11;
 }
 
 #album-results {
     background: green;
-    z-index: 13;
+}
+
+#news-pane {
+    background: white;
+    color: black;
+}
+
+#options {
+    background: black;
+    color: white;
+}
+
+#search-bar {
+    background: lightgrey;
 }
 
 .artist-result {
@@ -133,9 +109,43 @@
 }
 
 body{
-    position: absolute;
+    width: 100%;
+    background: black;
 }
 
 h2 {
     color: white;
+}
+
+#player{
+
+}
+
+#vid-box{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: 2;
+}
+.options {
+    position: fixed;
+    z-index: 20;
+    top: 55px;
+    color: white;
+}
+
+.search-result {
+
+}
+
+.search-result:hover {
+    color: yellow;
+    background-color: gree+n;
+}
+
+.x {
+    height: 20px;
+    width: 20px;
+    position: absolute;
+    display: none;
 }

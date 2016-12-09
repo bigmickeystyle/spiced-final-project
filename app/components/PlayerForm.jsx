@@ -1,6 +1,7 @@
 var React = require('react');
 
 var PlayerForm = React.createClass({
+
     onArtistFormSubmit: function (e) {
         e.preventDefault();
         var enteredArtist= this.refs.artist.value;

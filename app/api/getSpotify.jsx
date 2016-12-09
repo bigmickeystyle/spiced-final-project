@@ -16,7 +16,8 @@ module.exports = {
     },
 
     getAlbums: function(id) {
-        var albumsURL = `${SPOTIFY_URL}/artists/${id}/albums`;
+        var albumsURL = `${SPOTIFY_URL}/artists/${id}/albums?q=limit=50&market=DE`;
+        console.log(albumsURL);
         return axios.get(albumsURL).then(function(resp){
             return resp.data.items;
         });

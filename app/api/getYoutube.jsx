@@ -6,8 +6,9 @@ const YOUTUBE_SEARCH_URL = `https://www.googleapis.com/youtube/v3/search?part=sn
 
 module.exports = {
     getVideo: function(artist, track){
-        var encodedString = encodeURIComponent(artist+track);
+        var encodedString = encodeURIComponent(track +' '+ artist);
         var searchURL = `${YOUTUBE_SEARCH_URL}${encodedString}&key=${KEY}`;
+        console.log(searchURL);
         return axios.get(searchURL).then(function(resp){
             return resp.data.items;
         }).catch(function(err){

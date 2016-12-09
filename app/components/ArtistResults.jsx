@@ -8,7 +8,7 @@ var ArtistResults = React.createClass({
     render: function() {
         var {artist, id} = this.props;
         return (
-            <div className="artist-result" id={id} onClick={this.onClickedArtist}>
+            <div className="artist-result" id={id} onDoubleClick={this.onClickedArtist}>
                 <p>{artist}</p>
             </div>
         );

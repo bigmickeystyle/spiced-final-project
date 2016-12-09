@@ -36,14 +36,18 @@ module.exports = {
             Video: 'app/components/Video.jsx',
             RecentScrobbles: 'app/components/RecentScrobbles.jsx',
             ArtistResults: 'app/components/ArtistResults.jsx',
+            BubbleOptions: 'app/components/BubbleOptions.jsx',
             getLastFM: 'app/api/getLastFM.jsx',
             getSpotify: 'app/api/getSpotify.jsx',
             getDiscog: 'app/api/getDiscog.jsx',
             getYoutube: 'app/api/getYoutube.jsx',
             genius: 'app/api/genius.jsx',
+            bing: 'app/api/bing.jsx',
             appStyles: 'app/styles/app.scss',
             jQuery: 'node_modules/jquery/dist/jquery.min.js',
-            PlayerWidget: 'app/components/PlayerWidget.jsx'
+            PlayerWidget: 'app/components/PlayerWidget.jsx',
+            YoutubeControls: 'app/components/YoutubeControls.jsx',
+            funcs: 'app/components/funcs.js'
         }
     },
     module: {

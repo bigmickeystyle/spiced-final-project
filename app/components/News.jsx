@@ -1,9 +1,12 @@
 var React = require('react');
 
-var News = () => {
-    return (
-        <h3>This is the NEWSSSS</h3>
-    );
-};
+var News = React.createClass({
+    render: function(){
+        var {description} = this.props;
+        return (
+            <h3>{description}</h3>
+        );
+    }
+});
 
 module.exports = News;

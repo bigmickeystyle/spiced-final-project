@@ -1,7 +1,7 @@
 var axios = require('axios');
 const cheerio = require('cheerio');
 
-const API_TOKEN = 'VvdON_1hLZXZhK9Isbez6awd4LBvNksFalh6CiV1d4VRP8YxQKzyPRbFTMWV3DPM';
+const API_TOKEN = 'G1vpX856FxY8UwfGls2oZQg0l6b4M_sTco0jr51bYLjt7OaodOd3Ia53uE5T8IK0';
 const GENIUS_URL = 'https://api.genius.com/';
 
 module.exports = {

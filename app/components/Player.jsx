@@ -3,15 +3,23 @@ var getLastFM = require('getLastFM');
 var getDiscog = require('getDiscog');
 var getYoutube = require('getYoutube');
 var genius = require('genius');
+var bing = require('bing');
 var PlayerContainer = require('PlayerContainer');
 var PlayerForm = require('PlayerForm');
 var AlbumResults = require('AlbumResults');
 var PlayerWidget = require('PlayerWidget');
 var Tracks = require('Tracks');
 var Lyrics = require('Lyrics');
+var News = require('News');
 var Video = require('Video');
 var RecentScrobbles = require('RecentScrobbles');
 var ArtistResults = require('ArtistResults');
+var BubbleOptions = require('BubbleOptions');
+var YoutubeControls = require('YoutubeControls');
+var funcs = require('funcs');
+var getSpotify = require('getSpotify');
+
+
 
 var tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
@@ -19,19 +27,27 @@ tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-var getSpotify = require('getSpotify');
+
+var options = ['Search', 'Spotify', 'Youtube', 'Lyrics', 'Live', 'News', 'Recent'];
+
+var optionsMap = {
+    'search-bar': 'search',
+    'spotify-results': 'spotify',
+    'lyrics-pane': 'lyrics',
+    'news-pane': 'news',
+    'scrobble-pane': 'recent',
+    'artist-results': 'artist',
+    'album-results': 'album',
+    'tracks-pane': 'tracks'
+};
 
 var Player = React.createClass({
 
     getInitialState: function(){
         return {
-            isLoadingArtists: false,
-            albumLoading: false,
-            artistSearchSubmitted:false,
-            loadSpotify: false,
-            searchBar: true,
-            recentScrobbles: true,
-            username: 'braveshave'
+            searchPaneOpen: false,
+            username: 'braveshave',
+            youtubeEnabled: true
         };
     },
 
@@ -53,15 +69,55 @@ var Player = React.createClass({
         });
     },
 
+    highlight: function(pane){
+        $(`#${pane}`).css({border: '5px white solid'});
+        $(`#${pane}-x`).css({display: 'block'});
+        $(`#${pane}Arrow`).css({display: 'block'});
+    },
+
+    unhighlight: function(pane){
+        $(`#${pane}`).css({border: 'none'});
+        $(`#${pane}-x`).css({display: 'none'});
+        $(`#${pane}Arrow`).css({display: 'none'});
+    },
+
+    sizeHighlight: function(pane){
+        $(`#${pane}`).css({border: '5px white dashed'});
+        $(`#${pane}Arrow`).css({display: 'block'});
+    },
+
+    sizeUnhighlight: function(pane){
+        $(`#${pane}`).css({border: 'none'});
+        $(`#${pane}Arrow`).css({display: 'none'});
+    },
+
+    xHighlight: function(pane){
+        $(`#${pane}`).css({border: '5px red solid'});
+        $(`#${pane}-x`).css({display: 'block'});
+    },
+
+    xUnhighlight: function(pane){
+        $(`#${pane}`).css({border: 'none'});
+        $(`#${pane}-x`).css({display: 'none'});
+    },
+
+    closePane: function(pane) {
+        console.log(pane);
+        funcs.toggleOptions(optionsMap[pane], this);
+    },
+
     move: function(pane, eventStart) {
         var startLeft = eventStart.pageX - parseInt($(`#${pane}`).css('left'));
         var startTop = eventStart.pageY - parseInt($(`#${pane}`).css('top'));
         var arrowLeft = eventStart.pageX - parseInt(($(`#${pane}Arrow`).css('left')));
         var arrowTop = eventStart.pageY - parseInt(($(`#${pane}Arrow`).css('top')));
+        var xLeft = eventStart.pageX - parseInt(($(`#${pane}-x`).css('left')));
+        var xTop = eventStart.pageY - parseInt(($(`#${pane}-x`).css('top')));
         $(document).on('mousemove.boxmove', function(e){
             e.preventDefault();
             $(`#${pane}`).css({left: e.pageX - startLeft, top: e.pageY - startTop});
             $(`#${pane}Arrow`).css({left: e.pageX - arrowLeft, top: e.pageY - arrowTop});
+            $(`#${pane}-x`).css({left: e.pageX - xLeft, top: e.pageY - xTop});
         });
         $(document).on('mouseup.boxstop', function(){
             $(this).off('.boxmove');
@@ -90,13 +146,18 @@ var Player = React.createClass({
     },
 
     handleNewArtist: function (artist) {
+        if (artist == this.state.currentArtist && this.state.artistPaneOpen){
+            console.log("currentArtist");
+            return;
+        }
         this.setState({
             isLoadingArtists: true,
-            artistSearchSubmitted: true
+            artistPaneOpen: true
         });
         var thisState = this;
         getSpotify.searchArtist(artist).then(function(artists){
             thisState.setState({
+                currentArtist: artist,
                 isLoadingArtists: false,
                 artists: artists
             });
@@ -119,30 +180,49 @@ var Player = React.createClass({
     },
 
     handleNewClickedAlbum: function (id) {
+        if (id == this.state.currrentAlbumId && this.state.tracksPaneOpen){
+            console.log("no change in album");
+            return;
+        }
         var thisState = this;
         thisState.setState({
-            albumLoading: true
+            albumLoading: true,
+            tracksPaneOpen: true
         });
         getSpotify.getAlbum(id).then(function(albumSpotDetails){
             thisState.setState({
                 albumLoading: false,
-                albumTracks: albumSpotDetails.tracks.items
+                albumTracks: albumSpotDetails.tracks.items,
+                currentAlbumId: id
             });
         });
     },
 
     handleNewClickedTrack: function(artist, track, id){
+        var {uri, lyricsPaneOpen} = this.state;
+        var thisState = this;
+        if (id == uri){
+            console.log("no new track detected");
+            return;
+        }
+        this.setState({
+            currentTrack: track
+        });
         getYoutube.getVideo(artist, track).then(function(videoDetails){
             var firstResult = videoDetails[0].id.videoId;
-            $('#player').attr('src', `https://www.youtube.com/embed/${firstResult}?showinfo=0&enablejsapi=1&amp;&amp;widgetid=1`);
+            $('#player').attr('src', `https://www.youtube.com/embed/${firstResult}?showinfo=0&controls=0&enablejsapi=1&amp;&amp;widgetid=1&autoplay=1&modestbranding=1&iv_load_policy=3`);
+            $('#player').css('display', 'block');
         });
-        var thisState = this;
-        thisState.setState({
-            lyricsLoading: true,
-            loadSpotify: true,
-            uri: id
-        });
+        if (lyricsPaneOpen){
+            thisState.handleNewLyrics(artist, track);
+        }
+    },
 
+    handleNewLyrics: function(artist, track) {
+        var thisState = this;
+        this.setState({
+            lyricsLoading: true
+        });
         genius.getSong(artist, track).then(function(lyrics){
             thisState.setState({
                 lyrics: lyrics,
@@ -153,9 +233,22 @@ var Player = React.createClass({
     },
 
     handleNewClickedArtist: function (artist, id) {
+        if(artist == this.state.currentArtist && this.state.albumPaneOpen) {
+            console.log("no new artist selected");
+            return;
+        }
         var thisState = this;
         thisState.setState({
-            albumsLoading: true
+            albumPaneOpen: true,
+            currentArtist: artist,
+            albumsLoading: true,
+            newsLoading: true
+        });
+        bing.getNews(artist).then(function(news){
+            thisState.setState({
+                newsLoading: false,
+                news: news
+            });
         });
         getSpotify.getAlbums(id).then(function(albums){
             thisState.setState({
@@ -174,13 +267,32 @@ var Player = React.createClass({
         });
     },
 
+    handleClickedOption: function(option){
+        funcs.toggleOptions(option, this);
+    },
+
     render: function () {
-        var {isLoadingArtists, artist, artists, albums, uri, albumTracks, lyrics, albumLoading, lyricsLoading, artistSearchSubmitted, loadSpotify, searchBar, recentScrobbles, username} = this.state;
-        var {handleNewClickedAlbum, handleNewClickedTrack, handleNewClickedArtist, handleNewArtist, handleNewAlbum, handleNewTrack, handleScrobbles, move, resize} = this;
+        var {isLoadingArtists, artist, artists, albums, news, uri, albumTracks, lyrics,
+            searchPaneOpen, spotifyPaneOpen, youtubeEnabled, lyricsPaneOpen, livePaneOpen, newsPaneOpen, recentPaneOpen, artistPaneOpen, albumPaneOpen, tracksPaneOpen,
+            albumLoading, newsLoading, lyricsLoading,
+            currentArtist, currentTrack,
+            recentScrobbles, username} = this.state;
+
+        var {handleClickedOption, handleNewClickedAlbum, handleNewClickedTrack, handleNewClickedArtist, handleNewArtist, handleNewAlbum, handleNewTrack, handleScrobbles, handleNewLyrics,
+            move, resize, highlight, unhighlight, sizeHighlight, sizeUnhighlight, xHighlight, xUnhighlight, closePane} = this;
 
         function renderAlbumResults(){
+            var albumArray = [];
+            var albumNamesArray = [];
+            albums.forEach(function(result){
+                if (albumNamesArray.indexOf(result.name) == -1){
+                    albumArray.push(result);
+                    albumNamesArray.push(result.name);
+                }
+            });
             return (
-                albums.map(function(album, i){
+                albumArray
+                .map(function(album, i){
                     return <AlbumResults artist={artist} id={album.id} album={album.name} onClickedAlbum={handleNewClickedAlbum} key={i}/>;
                 })
             );
@@ -238,13 +350,32 @@ var Player = React.createClass({
                 return (
                     <h2>Searching</h2>
                 );
-            }
-            if(lyrics) {
+            } else if(lyrics) {
                 lyrics = lyrics.split('\n');
                 return(
                     lyrics.map(function(line, i){
-                        console.log(line);
                         return <Lyrics line={line} key={i} />;
+                    })
+                );
+            } else if(currentTrack && currentArtist){
+                handleNewLyrics(currentArtist, currentTrack);
+            } else {
+                return(
+                    <h2>no lyrics available</h2>
+                );
+            }
+        }
+
+        function renderNews(){
+            if(newsLoading){
+                return (
+                    <h2>Searching</h2>
+                );
+            }
+            if (news) {
+                return(
+                    news.map(function(article, i){
+                        return <News description={article.description} key={i} />;
                     })
                 );
             }
@@ -261,62 +392,97 @@ var Player = React.createClass({
 
         }
 
-        function newContainer(key, content, type, top, left){
-            var arrowLeft = left + 80;
-            var arrowTop = top + 80;
+        function renderOptions() {
+            return options.map(function(option, i){
+                return <BubbleOptions option={option} onClickedOption={handleClickedOption} key={i}/>;
+            });
+        }
+
+        function renderLive() {
+            return <div>TODO</div>;
+        }
+
+        function newContainer(key, content, type, top, left, height, width){
+            var arrowLeft = left + width - 20;
+            var arrowTop = top + height - 20;
             return <PlayerContainer
                     key={key}
                     content={content}
                     type={type}
                     resize={resize.bind(null, type)}
                     move={move.bind(null, type)}
+                    highlight={highlight.bind(null, type)}
+                    unhighlight={unhighlight.bind(null, type)}
+                    sizeHighlight={sizeHighlight.bind(null, type)}
+                    sizeUnhighlight={sizeUnhighlight.bind(null, type)}
+                    xHighlight={xHighlight.bind(null, type)}
+                    xUnhighlight={xUnhighlight.bind(null, type)}
+                    close={closePane.bind(null, type)}
                     containerStyle={{
                         top: `${top}px`,
                         left: `${left}px`,
-                        height: '100px',
-                        width: '100px'
+                        height: `${height}px`,
+                        width: `${width}px`,
+                        zIndex: key + 3
                     }}
                     arrowStyle={{
                         left: arrowLeft,
-                        top: arrowTop
+                        top: arrowTop,
+                        zIndex: key + 4
+                    }}
+                    xStyle={{
+                        left: left,
+                        top: top,
+                        zIndex: key + 4
                     }}
                     />;
         }
 
         function renderContainers(){
-            var renderArray=[];
-            var renderKey = 0;
-            if(searchBar){
+            var renderArray=[newContainer(0, renderOptions(), 'options', 60, 0, 200, 100)];
+            var renderKey = 1;
+
+            if (youtubeEnabled){
+                renderArray.push(<Video key={renderKey}/>);
+                renderKey++;
+                renderArray.push(newContainer(renderKey, <YoutubeControls />, 'youtube-controls', 75, 1125, 100, 100));
+                renderKey++;
+            }
+            if(searchPaneOpen){
                 renderArray.push(newContainer(renderKey,
                     <PlayerForm onArtistSubmit={handleNewArtist} onAlbumSubmit={handleNewAlbum} onTrackSubmit={handleNewTrack}/>,
-                    'search-bar', 100, 20));
-                renderKey++;
-                renderArray.push(<Video />);
+                    'search-bar', 65, 130, 80, 330));
                 renderKey++;
             }
-            if(loadSpotify) {
-                renderArray.push(renderSpotify());
+            if (spotifyPaneOpen) {
+                renderArray.push(newContainer(renderKey, renderSpotify(), 'spotify-results', 100, 500, 100, 300));
                 renderKey++;
             }
-            if(artistSearchSubmitted){
-                renderArray.push(newContainer(renderKey, renderArtistResults(), 'artist-results', 200, 220));
+            if (artistPaneOpen){
+                renderArray.push(newContainer(renderKey, renderArtistResults(), 'artist-results', 200, 220, 200, 200));
                 renderKey++;
             }
-            if(albums){
-                renderArray.push(newContainer(renderKey, renderAlbumResults(), 'album-results', 400, 620));
+            if (albumPaneOpen){
+                renderArray.push(newContainer(renderKey, renderAlbumResults(), 'album-results', 400, 620, 200, 200));
                 renderKey++;
             }
-            if (albumTracks){
-                renderArray.push(newContainer(renderKey, renderTracks(), 'tracks-pane', 150, 120));
+            if (tracksPaneOpen){
+                renderArray.push(newContainer(renderKey, renderTracks(), 'tracks-pane', 150, 120, 200, 200));
                 renderKey++;
             }
-            if (lyrics || lyricsLoading) {
-                renderArray.push(newContainer(renderKey, renderLyrics(), 'lyrics-pane', 300, 420));
+            if (lyricsPaneOpen) {
+                renderArray.push(newContainer(renderKey, renderLyrics(), 'lyrics-pane', 300, 420, 200, 200));
                 renderKey++;
             }
-            if (recentScrobbles) {
-                renderArray.push(newContainer(renderKey, renderRecentScrobbles(username), 'scrobble-pane', 350, 520));
+            if (recentPaneOpen) {
+                renderArray.push(newContainer(renderKey, renderRecentScrobbles(username), 'scrobble-pane', 350, 520, 200, 200));
                 renderKey++;
+            }
+            if (newsPaneOpen) {
+                renderArray.push(newContainer(renderKey, renderNews(), 'news-pane', 450, 720, 200, 200));
+            }
+            if (livePaneOpen) {
+                renderArray.push(newContainer(renderKey, renderLive(), 'live-pane', 500, 820, 200, 200));
             }
             return renderArray;
         }
