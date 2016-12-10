@@ -468,7 +468,7 @@ var Player = React.createClass({
             if(searchPaneOpen){
                 renderArray.push(newContainer(renderKey,
                     <PlayerForm onArtistSubmit={handleNewArtist} onAlbumSubmit={handleNewAlbum} onTrackSubmit={handleNewTrack}/>,
-                    'search-bar', 95, 95, 250, 125, "search"));
+                    'search-bar', 260, 0, 240, 280, "search"));
                 renderKey++;
             }
             if (spotifyPaneOpen) {
