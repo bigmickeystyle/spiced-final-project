@@ -6,10 +6,17 @@ var ArtistResults = React.createClass({
         onClickedArtist(artist, id);
     },
     render: function() {
-        var {artist, id} = this.props;
+        var {artist, id, image} = this.props;
         return (
-            <div className="artist-result" id={id} onDoubleClick={this.onClickedArtist}>
-                <p>{artist}</p>
+            <div className="result media-object" id={id} onDoubleClick={this.onClickedArtist}>
+                <div className="media-object-section">
+                    <div className="thumbnail">
+                      <img className="artist-image" src={image}></img>
+                    </div>
+                </div>
+                <div className="media-object-section main-section">
+                    <p>{artist}</p>
+                </div>
             </div>
         );
     }

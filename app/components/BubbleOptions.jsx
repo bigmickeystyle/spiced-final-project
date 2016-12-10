@@ -10,7 +10,7 @@ var BubbleOptions = React.createClass({
     render: function(){
         var {option} = this.props;
         return (
-            <li onClick={this.onClickedOption}>{option}</li>
+            <li className="menu result" onClick={this.onClickedOption}>{option}</li>
         );
     }
 });

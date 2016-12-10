@@ -34,14 +34,12 @@ var PlayerForm = React.createClass({
             <div>
                 <form onSubmit={this.onArtistFormSubmit}>
                     <input ref="artist" placeholder="Enter Artist"></input>
-                    <button>Submit</button>
                 </form>
                 <form onSubmit={this.onAlbumFormSubmit}>
-                    <input ref="album" placeholder="Enter Album"></input>
-                    <button>Submit</button>
+                    <input ref="album" placeholder="or Album"></input>
                 </form>
                 <form onSubmit={this.onTrackFormSubmit}>
-                    <input ref="track" placeholder="Enter Track"></input>
+                    <input ref="track" placeholder="or Track"></input><br/>
                     <button>Submit</button>
                 </form>
             </div>

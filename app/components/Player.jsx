@@ -27,6 +27,8 @@ tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+var timer;
+var zIndex = 0;
 
 var options = ['Search', 'Spotify', 'Youtube', 'Lyrics', 'Live', 'News', 'Recent'];
 
@@ -70,15 +72,21 @@ var Player = React.createClass({
     },
 
     highlight: function(pane){
-        $(`#${pane}`).css({border: '5px white solid'});
-        $(`#${pane}-x`).css({display: 'block'});
-        $(`#${pane}Arrow`).css({display: 'block'});
+        clearTimeout(timer);
+        zIndex += 1;
+        $(`#${pane}`).css({border: '5px white solid', zIndex: zIndex});
+        $(`#${pane}-x`).css({display: 'block', zIndex: zIndex + 1});
+        $(`#${pane}Arrow`).css({display: 'block', zIndex: zIndex + 1});
     },
 
     unhighlight: function(pane){
+        zIndex += 0;
         $(`#${pane}`).css({border: 'none'});
-        $(`#${pane}-x`).css({display: 'none'});
-        $(`#${pane}Arrow`).css({display: 'none'});
+        timer = setTimeout(function(){
+            $(`#${pane}-x`).css({display: 'none'});
+            $(`#${pane}Arrow`).css({display: 'none'});
+        }, 500);
+
     },
 
     sizeHighlight: function(pane){
@@ -210,8 +218,7 @@ var Player = React.createClass({
         });
         getYoutube.getVideo(artist, track).then(function(videoDetails){
             var firstResult = videoDetails[0].id.videoId;
-            $('#player').attr('src', `https://www.youtube.com/embed/${firstResult}?showinfo=0&controls=0&enablejsapi=1&amp;&amp;widgetid=1&autoplay=1&modestbranding=1&iv_load_policy=3`);
-            $('#player').css('display', 'block');
+            player.loadVideoById(firstResult);
         });
         if (lyricsPaneOpen){
             thisState.handleNewLyrics(artist, track);
@@ -284,24 +291,32 @@ var Player = React.createClass({
         function renderAlbumResults(){
             var albumArray = [];
             var albumNamesArray = [];
-            albums.forEach(function(result){
-                if (albumNamesArray.indexOf(result.name) == -1){
-                    albumArray.push(result);
-                    albumNamesArray.push(result.name);
-                }
-            });
-            return (
-                albumArray
-                .map(function(album, i){
-                    return <AlbumResults artist={artist} id={album.id} album={album.name} onClickedAlbum={handleNewClickedAlbum} key={i}/>;
-                })
-            );
+            if(albums){
+                albums.forEach(function(result){
+                    if (albumNamesArray.indexOf(result.name) == -1){
+                        albumArray.push(result);
+                        albumNamesArray.push(result.name);
+                    }
+                });
+                return (
+                    albumArray
+                    .map(function(album, i){
+                        return <AlbumResults artist={artist} id={album.id} album={album.name} onClickedAlbum={handleNewClickedAlbum} key={i}/>;
+                    })
+                );
+            }
         }
 
         function displayArtists(){
             return (
                 artists.map(function(artistResult, i){
-                    return <ArtistResults artist={artistResult.name} id={artistResult.id} onClickedArtist={handleNewClickedArtist} key={i}/>;
+                    var imgIndex = Math.floor(Math.random() * artistResult.images.length);
+                    if (artistResult.images[imgIndex]) {
+                        var url = artistResult.images[imgIndex].url;
+                    } else {
+                        url = "./images/ken.jpg";
+                    }
+                    return <ArtistResults image={url} artist={artistResult.name} id={artistResult.id} onClickedArtist={handleNewClickedArtist} key={i}/>;
                 })
             );
         }
@@ -402,9 +417,10 @@ var Player = React.createClass({
             return <div>TODO</div>;
         }
 
-        function newContainer(key, content, type, top, left, height, width){
+        function newContainer(key, content, type, top, left, height, width, title){
             var arrowLeft = left + width - 20;
             var arrowTop = top + height - 20;
+            zIndex = key + 3;
             return <PlayerContainer
                     key={key}
                     content={content}
@@ -418,28 +434,29 @@ var Player = React.createClass({
                     xHighlight={xHighlight.bind(null, type)}
                     xUnhighlight={xUnhighlight.bind(null, type)}
                     close={closePane.bind(null, type)}
+                    boxTitle={title}
                     containerStyle={{
                         top: `${top}px`,
                         left: `${left}px`,
                         height: `${height}px`,
                         width: `${width}px`,
-                        zIndex: key + 3
+                        zIndex: zIndex
                     }}
                     arrowStyle={{
                         left: arrowLeft,
                         top: arrowTop,
-                        zIndex: key + 4
+                        zIndex: zIndex + 1
                     }}
                     xStyle={{
                         left: left,
                         top: top,
-                        zIndex: key + 4
+                        zIndex: zIndex + 1
                     }}
                     />;
         }
 
         function renderContainers(){
-            var renderArray=[newContainer(0, renderOptions(), 'options', 60, 0, 200, 100)];
+            var renderArray=[newContainer(0, renderOptions(), 'options', 60, 0, 200, 100, "menu")];
             var renderKey = 1;
 
             if (youtubeEnabled){
@@ -451,38 +468,38 @@ var Player = React.createClass({
             if(searchPaneOpen){
                 renderArray.push(newContainer(renderKey,
                     <PlayerForm onArtistSubmit={handleNewArtist} onAlbumSubmit={handleNewAlbum} onTrackSubmit={handleNewTrack}/>,
-                    'search-bar', 65, 130, 80, 330));
+                    'search-bar', 95, 95, 250, 125, "search"));
                 renderKey++;
             }
             if (spotifyPaneOpen) {
-                renderArray.push(newContainer(renderKey, renderSpotify(), 'spotify-results', 100, 500, 100, 300));
+                renderArray.push(newContainer(renderKey, renderSpotify(), 'spotify-results', 100, 500, 100, 300, "spotify"));
                 renderKey++;
             }
             if (artistPaneOpen){
-                renderArray.push(newContainer(renderKey, renderArtistResults(), 'artist-results', 200, 220, 200, 200));
+                renderArray.push(newContainer(renderKey, renderArtistResults(), 'artist-results', 320, 0, 260, 330, "artists"));
                 renderKey++;
             }
             if (albumPaneOpen){
-                renderArray.push(newContainer(renderKey, renderAlbumResults(), 'album-results', 400, 620, 200, 200));
+                renderArray.push(newContainer(renderKey, renderAlbumResults(), 'album-results', 400, 620, 200, 200, "albums"));
                 renderKey++;
             }
             if (tracksPaneOpen){
-                renderArray.push(newContainer(renderKey, renderTracks(), 'tracks-pane', 150, 120, 200, 200));
+                renderArray.push(newContainer(renderKey, renderTracks(), 'tracks-pane', 150, 120, 200, 200, "tracks"));
                 renderKey++;
             }
             if (lyricsPaneOpen) {
-                renderArray.push(newContainer(renderKey, renderLyrics(), 'lyrics-pane', 300, 420, 200, 200));
+                renderArray.push(newContainer(renderKey, renderLyrics(), 'lyrics-pane', 300, 420, 200, 200, "lyrics"));
                 renderKey++;
             }
             if (recentPaneOpen) {
-                renderArray.push(newContainer(renderKey, renderRecentScrobbles(username), 'scrobble-pane', 350, 520, 200, 200));
+                renderArray.push(newContainer(renderKey, renderRecentScrobbles(username), 'scrobble-pane', 350, 520, 200, 200, "recent"));
                 renderKey++;
             }
             if (newsPaneOpen) {
-                renderArray.push(newContainer(renderKey, renderNews(), 'news-pane', 450, 720, 200, 200));
+                renderArray.push(newContainer(renderKey, renderNews(), 'news-pane', 450, 720, 200, 200, "news"));
             }
             if (livePaneOpen) {
-                renderArray.push(newContainer(renderKey, renderLive(), 'live-pane', 500, 820, 200, 200));
+                renderArray.push(newContainer(renderKey, renderLive(), 'live-pane', 500, 820, 200, 200, "live"));
             }
             return renderArray;
         }

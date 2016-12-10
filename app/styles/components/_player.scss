@@ -11,12 +11,13 @@
 .player-container {
     border-radius: 65px;
     display: inline-flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
     align-content: flex-start;
     position: absolute;
     overflow: hidden;
-    justify-content: center;
+    background-color: black;
+    color: white;
 }
 
 .whole-page {
@@ -31,6 +32,12 @@
     width: 100%;
     z-index: 20;
     position: fixed;
+    background-color: black;
+    color: white;
+}
+
+.top-bar-left ul {
+    background-color: black;
 }
 
 
@@ -47,65 +54,41 @@
 
 
 #artist-results {
-    background: black;
 }
 
 #spotify-results {
-    background: #191414;
 }
 
 #tracks-pane {
-    background: yellow;
 }
 
 #lyrics-pane {
-    background: green;
 }
 
 #scrobble-pane {
-    background: orange;
 }
 
 #album-results {
-    background: green;
 }
 
 #news-pane {
-    background: white;
-    color: black;
 }
 
 #options {
-    background: black;
-    color: white;
 }
 
 #search-bar {
-    background: lightgrey;
-}
-
-.artist-result {
-    background-color: black;
-    color: white;
 }
 
 
-.artist-result:hover {
+.result {
+}
+
+
+.result:hover {
     background-color: white;
     color: black;
-    cursor: pointer;
-}
-
-.album-result {
-    background-color: yellow;
-    color: blue;
-}
-
-
-.album-result:hover {
-    background-color: blue;
-    color: yellow;
-    cursor: pointer;
+    cursor: default;
 }
 
 body{
@@ -140,7 +123,6 @@ h2 {
 
 .search-result:hover {
     color: yellow;
-    background-color: gree+n;
 }
 
 .x {
@@ -148,4 +130,39 @@ h2 {
     width: 20px;
     position: absolute;
     display: none;
+}
+
+.artist-image {
+    width: 50px;
+}
+
+.vertical-title {
+    width: 40px;
+    height: 100%;
+    background-color: blue;
+
+}
+
+.vertical-title div{
+    width: 29%;
+    word-wrap: break-word;
+    font-size: 32px;
+    line-height: 30px;
+    margin-left: 35%;
+    color: white;
+    margin-top: 50%;
+}
+
+.media-object-section {
+    vertical-align: middle;
+}
+
+.content {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 5px;
+}
+
+input {
+    color: black;
 }
