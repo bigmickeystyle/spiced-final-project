@@ -5,11 +5,11 @@ var Nav = React.createClass({
 
     onSearch: function (e) {
         e.preventDefault();
-        var artist = this.refs.artist.value;
-        var encodedArtist = encodeURI(artist);
-        if (encodedArtist){
-            this.refs.artist.value = '';
-            window.location.hash = `#/?artist=${artist}`;
+        var searchString = this.refs.searchString.value;
+        var encodedString = encodeURI(searchString);
+        if (encodedString){
+            this.refs.searchString.value = '';
+            window.location.hash = `#/?search=${encodedString}`;
         }
 
     },
@@ -29,7 +29,7 @@ var Nav = React.createClass({
                     <form onSubmit={this.onSearch}>
                         <ul className="menu">
                             <li>
-                                <input type="search" placeholder="search" ref="artist" />
+                                <input type="search" placeholder="search" ref="searchString" />
                             </li>
                             <li>
                                 <input type="submit" className="button" value="go" />

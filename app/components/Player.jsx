@@ -12,6 +12,7 @@ var Tracks = require('Tracks');
 var Lyrics = require('Lyrics');
 var News = require('News');
 var Video = require('Video');
+var Playlist = require('Playlist');
 var RecentScrobbles = require('RecentScrobbles');
 var ArtistResults = require('ArtistResults');
 var BubbleOptions = require('BubbleOptions');
@@ -30,7 +31,7 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 var timer;
 var zIndex = 0;
 
-var options = ['Search', 'Spotify', 'Youtube', 'Lyrics', 'Live', 'News', 'Recent'];
+var options = ['Search', 'Spotify', 'Youtube', 'Lyrics', 'Live', 'News', 'Recent', 'Playlist'];
 
 var optionsMap = {
     'search-bar': 'search',
@@ -40,16 +41,67 @@ var optionsMap = {
     'scrobble-pane': 'recent',
     'artist-results': 'artist',
     'album-results': 'album',
-    'tracks-pane': 'tracks'
+    'tracks-pane': 'tracks',
+    'playlist-pane': 'playlist',
+    'live-pane': 'live',
+    'options': 'options',
+    'controls': 'controls'
 };
 
 var Player = React.createClass({
 
     getInitialState: function(){
         return {
-            searchPaneOpen: false,
+            optionsPane: {
+                open: true,
+                locked: false
+            },
+            searchPane: {
+                open: false,
+                locked: false
+            },
+            spotifyPane: {
+                open: false,
+                locked: false
+            },
+            artistPane: {
+                open: false,
+                locked: false
+            },
+            albumPane: {
+                open: false,
+                locked: false
+            },
+            tracksPane: {
+                open: false,
+                locked: false
+            },
+            lyricsPane: {
+                open: false,
+                locked: false
+            },
+            recentPane: {
+                open: false,
+                locked: false
+            },
+            newsPane: {
+                open: false,
+                locked: false
+            },
+            livePane: {
+                open: false,
+                locked: false
+            },
+            playlistPane: {
+                open: false,
+                locked: false
+            },
+            controlsPane: {
+                open: true,
+                locked: false
+            },
             username: 'braveshave',
-            youtubeEnabled: true
+            playlist: []
         };
     },
 
@@ -74,22 +126,29 @@ var Player = React.createClass({
     highlight: function(pane){
         clearTimeout(timer);
         zIndex += 1;
-        $(`#${pane}`).css({border: '5px white solid', zIndex: zIndex});
+        if(!this.state[`${optionsMap[pane]}Pane`].locked){
+            $(`#${pane}`).css({border: '5px white solid', zIndex: zIndex});
+        }
         $(`#${pane}-x`).css({display: 'block', zIndex: zIndex + 1});
         $(`#${pane}Arrow`).css({display: 'block', zIndex: zIndex + 1});
+        $(`#${pane}-lock`).css({display: 'block', zIndex: zIndex + 1});
     },
 
     unhighlight: function(pane){
         zIndex += 0;
-        $(`#${pane}`).css({border: 'none'});
+        if(!this.state[`${optionsMap[pane]}Pane`].locked){
+            $(`#${pane}`).css({border: 'none'});
+        }
         timer = setTimeout(function(){
             $(`#${pane}-x`).css({display: 'none'});
             $(`#${pane}Arrow`).css({display: 'none'});
+            $(`#${pane}-lock`).css({display: 'none'});
         }, 500);
 
     },
 
     sizeHighlight: function(pane){
+        clearTimeout(timer);
         $(`#${pane}`).css({border: '5px white dashed'});
         $(`#${pane}Arrow`).css({display: 'block'});
     },
@@ -100,6 +159,7 @@ var Player = React.createClass({
     },
 
     xHighlight: function(pane){
+        clearTimeout(timer);
         $(`#${pane}`).css({border: '5px red solid'});
         $(`#${pane}-x`).css({display: 'block'});
     },
@@ -109,35 +169,56 @@ var Player = React.createClass({
         $(`#${pane}-x`).css({display: 'none'});
     },
 
+    lockHighlight: function(pane){
+        clearTimeout(timer);
+        $(`#${pane}`).css({border: '5px blue solid'});
+        $(`#${pane}-lock`).css({display: 'block'});
+    },
+
+    lockUnhighlight: function(pane){
+        if(!this.state[`${optionsMap[pane]}Pane`].locked){
+            $(`#${optionsMap[pane]}`).css({border: 'none'});
+        }
+        $(`#${optionsMap[pane]}-lock`).css({display: 'none'});
+    },
+
     closePane: function(pane) {
-        console.log(pane);
         funcs.toggleOptions(optionsMap[pane], this);
     },
 
+    lockPane: function(pane) {
+        funcs.toggleLock(optionsMap[pane], this, pane);
+    },
+
     move: function(pane, eventStart) {
-        var startLeft = eventStart.pageX - parseInt($(`#${pane}`).css('left'));
-        var startTop = eventStart.pageY - parseInt($(`#${pane}`).css('top'));
-        var arrowLeft = eventStart.pageX - parseInt(($(`#${pane}Arrow`).css('left')));
-        var arrowTop = eventStart.pageY - parseInt(($(`#${pane}Arrow`).css('top')));
-        var xLeft = eventStart.pageX - parseInt(($(`#${pane}-x`).css('left')));
-        var xTop = eventStart.pageY - parseInt(($(`#${pane}-x`).css('top')));
-        $(document).on('mousemove.boxmove', function(e){
-            e.preventDefault();
-            $(`#${pane}`).css({left: e.pageX - startLeft, top: e.pageY - startTop});
-            $(`#${pane}Arrow`).css({left: e.pageX - arrowLeft, top: e.pageY - arrowTop});
-            $(`#${pane}-x`).css({left: e.pageX - xLeft, top: e.pageY - xTop});
-        });
-        $(document).on('mouseup.boxstop', function(){
-            $(this).off('.boxmove');
-            $(this).off('.boxstop');
-        });
+        if(!this.state[`${optionsMap[pane]}Pane`].locked){
+            var startLeft = eventStart.pageX - parseInt($(`#${pane}`).css('left'));
+            var startTop = eventStart.pageY - parseInt($(`#${pane}`).css('top'));
+            var arrowLeft = eventStart.pageX - parseInt(($(`#${pane}Arrow`).css('left')));
+            var arrowTop = eventStart.pageY - parseInt(($(`#${pane}Arrow`).css('top')));
+            var xLeft = eventStart.pageX - parseInt(($(`#${pane}-x`).css('left')));
+            var xTop = eventStart.pageY - parseInt(($(`#${pane}-x`).css('top')));
+            var lockLeft = eventStart.pageX - parseInt(($(`#${pane}-lock`).css('left')));
+            var lockTop = eventStart.pageY - parseInt(($(`#${pane}-lock`).css('top')));
+            $(document).on('mousemove.boxmove', function(e){
+                e.preventDefault();
+                $(`#${pane}`).css({left: e.pageX - startLeft, top: e.pageY - startTop});
+                $(`#${pane}Arrow`).css({left: e.pageX - arrowLeft, top: e.pageY - arrowTop});
+                $(`#${pane}-x`).css({left: e.pageX - xLeft, top: e.pageY - xTop});
+                $(`#${pane}-lock`).css({left: e.pageX - lockLeft, top: e.pageY - lockTop});
+            });
+            $(document).on('mouseup.boxstop', function(){
+                $(this).off('.boxmove');
+                $(this).off('.boxstop');
+            });
+        }
     },
 
     componentDidMount: function (){
         if(this.props.location){
-            var artist = this.props.location.query.artist;
-            if (artist) {
-                this.handleNewArtist(artist);
+            var searchVal = this.props.location.query.search;
+            if (searchVal) {
+                this.handleNewSearch(searchVal);
                 window.location.hash = '#/';
             }
         }
@@ -145,22 +226,25 @@ var Player = React.createClass({
 
     componentWillReceiveProps: function (newProps) {
         if(newProps.location){
-            var artist = newProps.location.query.artist;
-            if (artist) {
-                this.handleNewArtist(artist);
+            var searchVal = newProps.location.query.search;
+            if (searchVal) {
+                this.handleNewSearch(searchVal);
                 window.location.hash = '#/';
             }
         }
     },
 
     handleNewArtist: function (artist) {
-        if (artist == this.state.currentArtist && this.state.artistPaneOpen){
+        if (artist == this.state.currentArtist && this.state.artistPane){
             console.log("currentArtist");
             return;
         }
         this.setState({
             isLoadingArtists: true,
-            artistPaneOpen: true
+            artistPane: {
+                open: true,
+                locked: false
+            }
         });
         var thisState = this;
         getSpotify.searchArtist(artist).then(function(artists){
@@ -174,53 +258,185 @@ var Player = React.createClass({
             thisState.setState({
                 isLoadingArtists: false,
                 artist: artist,
-                topAlbum: 'apologies, no album found for this artist'
+                artists: 'apologies, no album found for this artist'
             });
         });
     },
 
+    handleNewSearch: function(string) {
+        this.setState({
+            isLoadingArtists: true,
+            isLoadingAlbum: true,
+            isLoadingTracks: true,
+            artistPane: {
+                open: true,
+                locked: false
+            },
+            albumPane: {
+                open: true,
+                locked: false
+            },
+            tracksPane: {
+                open: true,
+                locked: false
+            }
+        });
+        var thisState = this;
+        getSpotify.searchAll(string).then(function(results){
+            console.log(results);
+            thisState.setState({
+                isLoadingArtists: false,
+                isLoadingAlbum: false,
+                isLoadingTracks: false,
+                albums: results.albums.items,
+                trackResults: results.tracks.items,
+                artists: results.artists.items
+            });
+        }).catch(function(err){
+            console.log(err);
+        });
+
+    },
+
     handleNewAlbum: function(album) {
-        console.log(album);
+        if (album == this.state.currentAlbum && this.state.albumPane.open){
+            console.log("current album");
+            return;
+        }
+
+        this.setState({
+            isLoadingAlbum: true,
+            albumPane: {
+                open: true,
+                locked: false
+            }
+        });
+        var thisState = this;
+        getSpotify.searchAlbum(album).then(function(albums){
+            thisState.setState({
+                currentAlbum: album,
+                isLoadingAlbum: false,
+                albums: albums
+            });
+        }).catch(function(err){
+            console.log(err);
+            thisState.setState({
+                isLoadingAlbum: false,
+                albums: "apologies, no albums found"
+            });
+        });
+
     },
 
     handleNewTrack: function(track) {
-        console.log(track);
+        if (track == this.state.currentTrack && this.state.tracksPane.open){
+            console.log("current track");
+            return;
+        }
+
+        this.setState({
+            isLoadingTracks: true,
+            tracksPane: {
+                open: true,
+                locked: false
+            }
+        });
+        var thisState = this;
+        getSpotify.searchTrack(track).then(function(tracks){
+            thisState.setState({
+                currentTrack: track,
+                isLoadingTracks: false,
+                trackResults: tracks
+            });
+        }).catch(function(err){
+            console.log(err);
+            thisState.setState({
+                isLoadingTracks: false,
+                albums: "apologies, no tracks found"
+            });
+        });
     },
 
     handleNewClickedAlbum: function (id) {
-        if (id == this.state.currrentAlbumId && this.state.tracksPaneOpen){
+        if (id == this.state.currrentAlbumId && this.state.tracksPane.open){
             console.log("no change in album");
             return;
         }
         var thisState = this;
         thisState.setState({
             albumLoading: true,
-            tracksPaneOpen: true
+            tracksPane: {
+                open: true,
+                locked: false
+            }
         });
         getSpotify.getAlbum(id).then(function(albumSpotDetails){
+            console.log(albumSpotDetails);
             thisState.setState({
+                currentArtist: albumSpotDetails.artists[0].name,
                 albumLoading: false,
-                albumTracks: albumSpotDetails.tracks.items,
-                currentAlbumId: id
+                trackResults: albumSpotDetails.tracks.items,
+                currentAlbumId: id,
+                uri: albumSpotDetails.uri
             });
         });
     },
 
-    handleNewClickedTrack: function(artist, track, id){
-        var {uri, lyricsPaneOpen} = this.state;
+    handleNextTrack: function(){
+        var {trackResults, currentTrackNum, currentArtist} = this.state;
+        var thisState = this;
+        trackResults.forEach(function(albumTrack){
+            if (albumTrack['track_number'] == currentTrackNum) {
+                getYoutube.getVideo(currentArtist, trackResults[currentTrackNum % trackResults.length].name).then(function(nextTrack){
+                    player.loadVideoById(nextTrack[0].id.videoId);
+                });
+                thisState.setState({
+                    currentTrackNum: (currentTrackNum + 1) % trackResults.length
+                });
+            }
+        });
+    },
+
+    handlePrevTrack: function(){
+        var {trackResults, currentTrackNum, currentArtist} = this.state;
+        var thisState = this;
+        trackResults.forEach(function(albumTrack){
+            if (albumTrack['track_number'] == currentTrackNum) {
+                getYoutube.getVideo(currentArtist, trackResults[(currentTrackNum + trackResults.length - 2) % trackResults.length].name).then(function(nextTrack){
+                    player.loadVideoById(nextTrack[0].id.videoId);
+                });
+                thisState.setState({
+                    currentTrackNum: (currentTrackNum + trackResults.length - 1) % trackResults.length
+                });
+            }
+        });
+    },
+
+    handleNewClickedTrack: function(artist, track, id, num){
+        var {uri, lyricsPane, trackResults} = this.state;
         var thisState = this;
         if (id == uri){
             console.log("no new track detected");
             return;
         }
         this.setState({
-            currentTrack: track
+            currentTrack: track,
+            currentTrackNum: num,
+            playlist: this.state.trackResults.concat(trackResults)
         });
         getYoutube.getVideo(artist, track).then(function(videoDetails){
             var firstResult = videoDetails[0].id.videoId;
             player.loadVideoById(firstResult);
+            trackResults.forEach(function(albumTrack){
+                if (albumTrack['track_number'] == num) {
+                    getYoutube.getVideo(artist, trackResults[num % trackResults.length].name).then(function(nextTrack){
+                        queue = nextTrack[0].id.videoId
+                    });
+                }
+            });
+
         });
-        if (lyricsPaneOpen){
+        if (lyricsPane.open){
             thisState.handleNewLyrics(artist, track);
         }
     },
@@ -240,13 +456,16 @@ var Player = React.createClass({
     },
 
     handleNewClickedArtist: function (artist, id) {
-        if(artist == this.state.currentArtist && this.state.albumPaneOpen) {
+        if(artist == this.state.currentArtist && this.state.albumPane.open) {
             console.log("no new artist selected");
             return;
         }
         var thisState = this;
         thisState.setState({
-            albumPaneOpen: true,
+            albumPane: {
+                open: true,
+                locked: false
+            },
             currentArtist: artist,
             albumsLoading: true,
             newsLoading: true
@@ -279,14 +498,15 @@ var Player = React.createClass({
     },
 
     render: function () {
-        var {isLoadingArtists, artist, artists, albums, news, uri, albumTracks, lyrics,
-            searchPaneOpen, spotifyPaneOpen, youtubeEnabled, lyricsPaneOpen, livePaneOpen, newsPaneOpen, recentPaneOpen, artistPaneOpen, albumPaneOpen, tracksPaneOpen,
-            albumLoading, newsLoading, lyricsLoading,
-            currentArtist, currentTrack,
+        var {isLoadingArtists, artist, artists, albums, news, uri, trackResults, lyrics,
+            searchPane, spotifyPane, controlsPane, lyricsPane, livePane, newsPane, recentPane, artistPane, albumPane, tracksPane,
+            albumLoading, newsLoading, lyricsLoading, playlistPane,
+            currentArtist, currentTrack, playlist,
             recentScrobbles, username} = this.state;
 
-        var {handleClickedOption, handleNewClickedAlbum, handleNewClickedTrack, handleNewClickedArtist, handleNewArtist, handleNewAlbum, handleNewTrack, handleScrobbles, handleNewLyrics,
-            move, resize, highlight, unhighlight, sizeHighlight, sizeUnhighlight, xHighlight, xUnhighlight, closePane} = this;
+        var {handleClickedOption, handleNewClickedAlbum, handleNewClickedTrack, handleNewClickedArtist, handleNewArtist, handleNewAlbum, handleNewTrack, handleScrobbles,
+            handleNextTrack, handlePrevTrack, handleNewLyrics,
+            move, resize, highlight, unhighlight, sizeHighlight, sizeUnhighlight, xHighlight, xUnhighlight, lockHighlight, lockUnhighlight, closePane, lockPane} = this;
 
         function renderAlbumResults(){
             var albumArray = [];
@@ -351,10 +571,10 @@ var Player = React.createClass({
         }
 
         function renderTracks(){
-            if(albumTracks) {
+            if(trackResults) {
                 return(
-                    albumTracks.map(function(track, i){
-                        return <Tracks track={track.name} artist={track.artists[0].name} id={track.uri} onClickedTrack={handleNewClickedTrack} key={i} />;
+                    trackResults.map(function(track, i){
+                        return <Tracks num={track['track_number']} track={track.name} artist={track.artists[0].name} id={track.uri} onClickedTrack={handleNewClickedTrack} key={i} />;
                     })
                 );
             }
@@ -417,7 +637,15 @@ var Player = React.createClass({
             return <div>TODO</div>;
         }
 
+        function renderPlaylist() {
+            return playlist.map(function(track, i){
+                console.log(track);
+                return <Playlist num={track['track_number']} track={track.name} artist={track.artists[0].name} id={track.uri} onClickedTrack={handleNewClickedTrack} key={i}/>;
+            });
+        }
+
         function newContainer(key, content, type, top, left, height, width, title){
+            var lockLeft = left + 25;
             var arrowLeft = left + width - 20;
             var arrowTop = top + height - 20;
             zIndex = key + 3;
@@ -433,7 +661,10 @@ var Player = React.createClass({
                     sizeUnhighlight={sizeUnhighlight.bind(null, type)}
                     xHighlight={xHighlight.bind(null, type)}
                     xUnhighlight={xUnhighlight.bind(null, type)}
+                    lockHighlight={lockHighlight.bind(null, type)}
+                    lockUnhighlight={lockUnhighlight.bind(null, type)}
                     close={closePane.bind(null, type)}
+                    lock={lockPane.bind(null, type)}
                     boxTitle={title}
                     containerStyle={{
                         top: `${top}px`,
@@ -452,6 +683,11 @@ var Player = React.createClass({
                         top: top,
                         zIndex: zIndex + 1
                     }}
+                    lockStyle={{
+                        left: lockLeft,
+                        top: top,
+                        zIndex: zIndex + 1
+                    }}
                     />;
         }
 
@@ -459,47 +695,53 @@ var Player = React.createClass({
             var renderArray=[newContainer(0, renderOptions(), 'options', 60, 0, 200, 100, "menu")];
             var renderKey = 1;
 
-            if (youtubeEnabled){
+            if (controlsPane.open){
                 renderArray.push(<Video key={renderKey}/>);
                 renderKey++;
-                renderArray.push(newContainer(renderKey, <YoutubeControls />, 'youtube-controls', 75, 1125, 100, 100));
+                renderArray.push(newContainer(renderKey, <YoutubeControls onNext={handleNextTrack} onPrev={handlePrevTrack}/>, 'controls', 75, 1125, 150, 100));
                 renderKey++;
             }
-            if(searchPaneOpen){
+            if(searchPane.open){
                 renderArray.push(newContainer(renderKey,
                     <PlayerForm onArtistSubmit={handleNewArtist} onAlbumSubmit={handleNewAlbum} onTrackSubmit={handleNewTrack}/>,
                     'search-bar', 260, 0, 240, 280, "search"));
                 renderKey++;
             }
-            if (spotifyPaneOpen) {
+            if (spotifyPane.open) {
                 renderArray.push(newContainer(renderKey, renderSpotify(), 'spotify-results', 100, 500, 100, 300, "spotify"));
                 renderKey++;
             }
-            if (artistPaneOpen){
+            if (artistPane.open){
                 renderArray.push(newContainer(renderKey, renderArtistResults(), 'artist-results', 320, 0, 260, 330, "artists"));
                 renderKey++;
             }
-            if (albumPaneOpen){
+            if (albumPane.open){
                 renderArray.push(newContainer(renderKey, renderAlbumResults(), 'album-results', 400, 620, 200, 200, "albums"));
                 renderKey++;
             }
-            if (tracksPaneOpen){
+            if (tracksPane.open){
                 renderArray.push(newContainer(renderKey, renderTracks(), 'tracks-pane', 150, 120, 200, 200, "tracks"));
                 renderKey++;
             }
-            if (lyricsPaneOpen) {
+            if (lyricsPane.open) {
                 renderArray.push(newContainer(renderKey, renderLyrics(), 'lyrics-pane', 300, 420, 200, 200, "lyrics"));
                 renderKey++;
             }
-            if (recentPaneOpen) {
+            if (recentPane.open) {
                 renderArray.push(newContainer(renderKey, renderRecentScrobbles(username), 'scrobble-pane', 350, 520, 200, 200, "recent"));
                 renderKey++;
             }
-            if (newsPaneOpen) {
+            if (newsPane.open) {
                 renderArray.push(newContainer(renderKey, renderNews(), 'news-pane', 450, 720, 200, 200, "news"));
+                renderKey++;
             }
-            if (livePaneOpen) {
+            if (livePane.open) {
                 renderArray.push(newContainer(renderKey, renderLive(), 'live-pane', 500, 820, 200, 200, "live"));
+                renderKey++;
+            }
+            if (playlistPane.open) {
+                renderArray.push(newContainer(renderKey, renderPlaylist(), 'playlist-pane', 550, 920, 200, 200, "playlist"));
+                renderKey++;
             }
             return renderArray;
         }

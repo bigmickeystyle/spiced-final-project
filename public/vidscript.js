@@ -1,4 +1,5 @@
 var paused = false;
+var queue;
 
 function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
@@ -26,20 +27,30 @@ function onPlayerReady() {
 
 function onPlayerChange(e){
     if(e.data == 0){
-        console.log("ended");
+        player.loadVideoById()
     }
     if (e.data == 2 && !paused){
-        $('#controls-image').attr('src', './images/bubbles.png');
+        $.ajax({
+            url: '/nextTrack',
+            method: 'GET',
+            data: {
+                limit: 20
+            },
+            success: function(data) {
+                console.log(data);
+            }
+        });
+        $('#play-img').attr('src', './images/play.png');
         paused = true;
     } else if (e.data == 1 && paused) {
-        $('#controls-image').attr('src', './images/pause.png');
+        $('#play-img').attr('src', './images/pause.png');
         paused = false;
     }
 }
 
-$('#youtube-controls').on('click.pause', function (){
+$('#play-img').on('click.pause', function (){
     player.pauseVideo();
-    $('#youtube-controls').on('click.unpause', function(){
+    $('#play-img').on('click.unpause', function(){
         player.playVideo();
         $(this).off('.unpause');
     });

@@ -1,6 +1,6 @@
 var React = require('react');
 
-var Tracks = React.createClass({
+var Playlist = React.createClass({
     onClickedTrack: function() {
         var {artist, track, id, num, onClickedTrack} = this.props;
         onClickedTrack(artist, track, id, num);
@@ -15,4 +15,4 @@ var Tracks = React.createClass({
     }
 });
 
-module.exports = Tracks;
+module.exports = Playlist;

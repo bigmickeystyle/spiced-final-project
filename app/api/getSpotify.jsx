@@ -7,9 +7,39 @@ module.exports = {
 
     searchArtist: function(artist) {
         var encodedArtist = encodeURIComponent(artist);
-        var trackURL = `${SPOTIFY_SEARCH_URL}?q=${encodedArtist}&type=artist`;
-        return axios.get(trackURL).then(function(resp){
+        var searchUrl = `${SPOTIFY_SEARCH_URL}?q=${encodedArtist}&type=artist`;
+        return axios.get(searchUrl).then(function(resp){
             return resp.data.artists.items;
+        }).catch(function(err){
+            return err;
+        });
+    },
+
+    searchAlbum: function (album) {
+        var encodedAlbum = encodeURIComponent(album);
+        var searchUrl = `${SPOTIFY_SEARCH_URL}?q=${encodedAlbum}&type=album`;
+        return axios.get(searchUrl).then(function(resp){
+            return resp.data.albums.items;
+        }).catch(function(err){
+            return err;
+        });
+    },
+
+    searchTrack: function (track) {
+        var encodedTrack = encodeURIComponent(track);
+        var searchUrl = `${SPOTIFY_SEARCH_URL}?q=${encodedTrack}&type=track`;
+        return axios.get(searchUrl).then(function(resp){
+            return resp.data.tracks.items;
+        }).catch(function(err){
+            return err;
+        });
+    },
+
+    searchAll: function (string) {
+        var encodedString = encodeURIComponent(string);
+        var searchUrl = `${SPOTIFY_SEARCH_URL}?q=${encodedString}&type=album,track,artist`;
+        return axios.get(searchUrl).then(function(resp){
+            return resp.data;
         }).catch(function(err){
             return err;
         });

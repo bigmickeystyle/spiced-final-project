@@ -34,6 +34,7 @@ module.exports = {
             Tracks: 'app/components/Tracks.jsx',
             Lyrics: 'app/components/Lyrics.jsx',
             Video: 'app/components/Video.jsx',
+            Playlist: 'app/components/Playlist.jsx',
             RecentScrobbles: 'app/components/RecentScrobbles.jsx',
             ArtistResults: 'app/components/ArtistResults.jsx',
             BubbleOptions: 'app/components/BubbleOptions.jsx',

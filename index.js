@@ -4,6 +4,8 @@ var getMB = require('./app/servercomponents/getMB');
 var getDiscogs = require('./app/servercomponents/getDiscogs')
 var dbConnect = require('./app/servercomponents/dbConnect');
 var getBingNews = require('./app/servercomponents/getBingNews');
+var events = require('events');
+var newTrack = Object.create(new events.EventEmitter);
 // Create our app
 var app = express();
 
@@ -30,6 +32,11 @@ app.get('/news', function(req, res) {
             news: response.value
         });
     });
+});
+
+app.get('/nextTrack', function(req, res){
+    console.log("getting next track");
+    newTrack.emit('newTrack', 'next');
 });
 
 app.get('/albums', function(req, res){

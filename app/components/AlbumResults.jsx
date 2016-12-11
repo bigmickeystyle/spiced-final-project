@@ -5,10 +5,14 @@ var SearchResults = React.createClass({
         var {id, onClickedAlbum} = this.props;
         onClickedAlbum(id);
     },
+    onDraggedAlbum: function() {
+        var {clickedAlbum} = this.props;
+        console.log("dragging", clickedAlbum);
+    },
     render: function() {
         var {album, id} = this.props;
         return (
-            <div className="result" id={id} onDoubleClick={this.onClickedAlbum}>
+            <div className="result" id={id} onDrag={this.onDraggedAlbum} onDoubleClick={this.onClickedAlbum}>
                 <p>{album}</p>
             </div>
         );
