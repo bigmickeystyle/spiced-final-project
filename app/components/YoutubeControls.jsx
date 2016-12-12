@@ -1,10 +1,7 @@
 var React = require('react');
 
 var YoutubeControls = React.createClass({
-    componentWillUpdate: function(){
-        console.log("weeeeee");
-    },
-    
+
     onNext: function(){
         this.props.onNext();
     },
@@ -13,11 +10,15 @@ var YoutubeControls = React.createClass({
         this.props.onPrev();
     },
 
+    onPause: function(){
+        this.props.onPause();
+    },
+
     render: function(){
         return (
             <div id="controls-image">
                 <div id="play-container">
-                    <img id="play-img" src='./images/pause.png'></img>
+                    <img onClick={this.onPause} id="play-img" src='./images/pause.png'></img>
                 </div>
                 <div id="prev-container">
                     <img onClick={this.onPrev} id="prev-img" src='./images/prev.png'></img>
