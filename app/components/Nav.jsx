@@ -21,7 +21,8 @@ var Nav = React.createClass({
                     <ul className="menu">
                         <li className="menu-text">NAME GOES HERE</li>
                         <li><IndexLink to="/" activeClassName="selected-link">Player</IndexLink></li>
-                        <li><Link to="/news" activeClassName="selected-link">News</Link></li>
+                        <li><Link to="/profile" activeClassName="selected-link">Profile
+                        </Link></li>
                         <li><Link to="/about" activeClassName="selected-link">About</Link></li>
                     </ul>
                 </div>

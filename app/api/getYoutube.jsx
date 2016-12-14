@@ -14,5 +14,16 @@ module.exports = {
         }).catch(function(err){
             return err;
         });
+    },
+
+    searchScenery: function(scenery){
+        var encodedScenery = encodeURIComponent(scenery + " video hd");
+        var searchURL = `${YOUTUBE_SEARCH_URL}${encodedScenery}&key=${KEY}`;
+        console.log(searchURL);
+        return axios.get(searchURL).then(function(resp){
+            return resp.data.items;
+        }).catch(function(err){
+            return err;
+        });
     }
 };

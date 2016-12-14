@@ -1,15 +1,10 @@
 var React = require('react');
 
 var PlayerWidget = React.createClass({
-    onIframeClick: function() {
-        console.log("clicked");
-        var thing = $('iframe');
-        console.log(thing);
-    },
     render: function(){
         return (
-            <div onClick={this.onIframeClick}>
-                <iframe src={`https://embed.spotify.com/?uri=${this.props.uri}`} width="300" height="80" frameBorder="0" allowTransparency="true"></iframe>
+            <div>
+                <iframe src={`https://embed.spotify.com/?uri=${this.props.uri}`} width="300" height="300" frameBorder="0" allowTransparency="true"></iframe>
             </div>
         );
     }

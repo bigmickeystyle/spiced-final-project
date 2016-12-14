@@ -2,6 +2,7 @@ var React = require('react');
 
 var ProgressBar = React.createClass({
     onclick: function(e){
+        e.preventDefault();
         var {onProgressClick} = this.props;
         onProgressClick(e.nativeEvent.offsetX);
     },

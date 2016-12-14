@@ -29,9 +29,22 @@ var PlayerForm = React.createClass({
         }
     },
 
+    onPlaylistFormSubmit: function(){
+        console.log("doesn't work");
+    },
+
+    onSceneryFormSubmit: function (e) {
+        e.preventDefault();
+        var enteredScenery = this.refs.scenery.value;
+        if(enteredScenery){
+            this.refs.scenery.value = "";
+            this.props.onScenerySubmit(enteredScenery);
+        }
+    },
+
     render: function(){
         return (
-            <div>
+            <div id="search-input">
                 <form onSubmit={this.onArtistFormSubmit}>
                     <input ref="artist" placeholder="Enter Artist"></input>
                 </form>
@@ -41,12 +54,11 @@ var PlayerForm = React.createClass({
                 <form onSubmit={this.onTrackFormSubmit}>
                     <input ref="track" placeholder="or Track"></input><br/>
                 </form>
-                <form onSubmit={this.onTrackFormSubmit}>
+                <form onSubmit={this.onPlaylistFormSubmit}>
                     <input ref="playlist" placeholder="or Playlist (doesn't work yet)"></input><br/>
                 </form>
-                <form onSubmit={this.onTrackFormSubmit}>
-                    <input ref="scenery" placeholder="or Scenery (doesn't work yet)"></input><br/>
-                    <button>Submit</button>
+                <form onSubmit={this.onSceneryFormSubmit}>
+                    <input ref="scenery" placeholder="or Scenery"></input><br/>
                 </form>
             </div>
         );

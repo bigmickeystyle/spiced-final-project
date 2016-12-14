@@ -6,7 +6,7 @@ var Lyrics = React.createClass({
         console.log(line);
         return (
             <div className="lyric-line">
-                <p>{line}</p>
+                {line}
             </div>
         );
     }

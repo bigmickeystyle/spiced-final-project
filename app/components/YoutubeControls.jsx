@@ -14,6 +14,10 @@ var YoutubeControls = React.createClass({
         this.props.onPause();
     },
 
+    onMute: function(){
+        this.props.onMute();
+    },
+
     render: function(){
         return (
             <div id="controls-image">
@@ -26,6 +30,9 @@ var YoutubeControls = React.createClass({
                 </div>
                 <div id="next-container">
                     <img onClick={this.onNext} id="next-img" src='./images/next.png'></img>
+                </div>
+                <div id="mute-continaer">
+                    <img onClick={this.onMute} id="mute-img" src='./images/mute.png'></img>
                 </div>
             </div>
 

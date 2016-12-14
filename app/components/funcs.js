@@ -14,6 +14,7 @@ module.exports = {
         };
         if(thisState.state[isPaneOpen].open){
             thisState.setState(toggleOff);
+
         }else if(!thisState.state[isPaneOpen].open){
             thisState.setState(toggleOn);
         }

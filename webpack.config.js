@@ -41,6 +41,7 @@ module.exports = {
             YoutubeResults: 'app/components/YoutubeResults.jsx',
             YoutubeBackground: 'app/components/YoutubeBackground.jsx',
             ProgressBar: 'app/components/ProgressBar.jsx',
+            SceneryResults: 'app/components/SceneryResults.jsx',
             getLastFM: 'app/api/getLastFM.jsx',
             getSpotify: 'app/api/getSpotify.jsx',
             getDiscog: 'app/api/getDiscog.jsx',

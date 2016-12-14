@@ -52,35 +52,6 @@
     cursor: grab;
 }
 
-
-#artist-results {
-}
-
-#spotify-results {
-}
-
-#tracks-pane {
-}
-
-#lyrics-pane {
-}
-
-#scrobble-pane {
-}
-
-#album-results {
-}
-
-#news-pane {
-}
-
-#options {
-}
-
-#search-bar {
-}
-
-
 .result {
 }
 
@@ -143,6 +114,9 @@ h2 {
     width: 50px;
 }
 
+.thumbnail{
+    border: none;
+}
 .vertical-title {
     width: 40px;
     height: 100%;
@@ -182,6 +156,10 @@ controls-image {
     display: none;
 }
 
+#progress-bar .vertical-title {
+    width: 0%;
+}
+
 #controls .content {
     margin: 0;
     max-width: 95px;
@@ -217,6 +195,10 @@ controls-image {
     height: 35px;
 }
 
+#mute-img {
+    width: 25px;
+}
+
 #progress-bar .content{
     position: absolute;
     height: 100%;
@@ -226,4 +208,20 @@ controls-image {
 #progress-fill {
     height: 100%;
     width: 100%;
+}
+
+.top-bar ul {
+    background-color: black;
+}
+
+#search-input form {
+    margin-top: 5px
+}
+
+.lyric-line {
+    margin-right: 45px;
+}
+
+#lyrics-pane .content {
+    width:100%;
 }

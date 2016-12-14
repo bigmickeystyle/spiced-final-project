@@ -9,7 +9,7 @@ var Tracks = React.createClass({
         var {track, id} = this.props;
         return (
             <div className="result" id={id} onDoubleClick={this.onClickedTrack}>
-                <p>{track}</p>
+                {track}
             </div>
         );
     }
