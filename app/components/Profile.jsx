@@ -1,10 +1,12 @@
 var React = require('react');
+var Register = require('Register');
+var LogIn = require('LogIn');
+var EditProfile = require('EditProfile');
 
 var Profile = React.createClass({
     render: function(){
-        var {description} = this.props;
         return (
-            <p>{description}</p>
+         <Register />
         );
     }
 });

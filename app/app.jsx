@@ -4,7 +4,7 @@ var {Route, Router, IndexRoute, hashHistory} = require('react-router');
 var Main = require('Main');
 var Player = require('Player');
 var About = require('About');
-var News = require('News');
+var Profile = require('Profile');
 
 
 require('style!css!foundation-sites/dist/foundation.min.css');
@@ -17,7 +17,7 @@ ReactDOM.render(
   <Router history={hashHistory}>
       <Route path="/" component={Main}>
           <Route path="about" component={About}/>
-          <Route path="news" component={News}/>
+          <Route path="profile" component={Profile}/>
           <IndexRoute component={Player}/>
       </Route>
   </Router>,

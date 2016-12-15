@@ -1,5 +1,6 @@
 var React = require('react');
 var {Link, IndexLink} = require('react-router');
+var hidden = false;
 
 var Nav = React.createClass({
 
@@ -14,15 +15,18 @@ var Nav = React.createClass({
 
     },
 
+    hideAll: function() {
+        $('.bubble').toggleClass('hide-bubbles');
+    },
+
     render: function () {
         return(
             <div className="top-bar">
                 <div className="top-bar-left">
                     <ul className="menu">
-                        <li className="menu-text">NAME GOES HERE</li>
+                        <li onClick={this.hideAll} id="hider" className="menu-text">HIDE</li>
                         <li><IndexLink to="/" activeClassName="selected-link">Player</IndexLink></li>
-                        <li><Link to="/profile" activeClassName="selected-link">Profile
-                        </Link></li>
+                        <li><Link to="/profile" activeClassName="selected-link">Profile</Link></li>
                         <li><Link to="/about" activeClassName="selected-link">About</Link></li>
                     </ul>
                 </div>

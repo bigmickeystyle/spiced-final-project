@@ -10,10 +10,17 @@ var SearchResults = React.createClass({
         console.log("dragging", clickedAlbum);
     },
     render: function() {
-        var {album, id} = this.props;
+        var {album, image, id} = this.props;
         return (
-            <div className="result" id={id} onDrag={this.onDraggedAlbum} onDoubleClick={this.onClickedAlbum}>
-                <p>{album}</p>
+            <div className="result media-object" id={id} onDoubleClick={this.onClickedAlbum}>
+                <div className="media-object-section">
+                    <div className="thumbnail">
+                      <img className="artist-image" src={image}></img>
+                    </div>
+                </div>
+                <div className="media-object-section main-section">
+                    <p>{album}</p>
+                </div>
             </div>
         );
     }

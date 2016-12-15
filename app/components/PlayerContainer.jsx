@@ -7,8 +7,8 @@ var playerContainer = React.createClass({
     render: function(){
         return (
             <div className="bubble">
-                <div id={this.props.type} className="player-container" onMouseEnter={this.props.highlight} onMouseLeave={this.props.unhighlight} onMouseDown={this.props.move} style={this.props.containerStyle}>
-                    <div className="vertical-title" id={this.props.type + "-title"}><div>{this.props.boxTitle}</div></div>
+                <div id={this.props.type} className={"player-container " + this.props.theme} onMouseOver={this.props.highlight} onMouseLeave={this.props.unhighlight} onMouseDown={this.props.move} style={this.props.containerStyle}>
+                    <div className={"vertical-title vertical-" + this.props.theme} id={this.props.type + "-title"}><div>{this.props.boxTitle}</div></div>
                     <div className="content">{this.props.content}</div>
                 </div>
                 <img id={this.props.type + "-lock"} className="lock" src="./images/unlocked.png" style={this.props.lockStyle}  onMouseEnter={this.props.lockHighlight} onMouseLeave={this.props.lockUnhighlight} onClick={this.props.lock}></img>

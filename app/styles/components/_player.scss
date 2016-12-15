@@ -1,5 +1,4 @@
 .album-results-container {
-    border: 1px black solid;
     display: inline-flex;
     flex-direction: column;
     flex-wrap: wrap;
@@ -16,8 +15,44 @@
     align-content: flex-start;
     position: absolute;
     overflow: hidden;
+}
+
+.default {
     background-color: black;
     color: white;
+}
+
+.vertical-default {
+    background-color: blue;
+    color: white;
+}
+
+.transparent {
+    background: none;
+}
+
+.vertical-transparent {
+    background: none;
+}
+
+.sunrise {
+    background: linear-gradient(red, yellow);
+    color: black;
+}
+
+.vertical-sunrise {
+    background: lightyellow;
+    color: saddlebrown;
+}
+
+.vertical-corona {
+    background: linear-gradient(white, black);
+    color: black;
+}
+
+.corona {
+    background: radial-gradient(circle, black, white, black);
+    color: black;
 }
 
 .whole-page {
@@ -67,13 +102,7 @@ body{
     background: black;
 }
 
-h2 {
-    color: white;
-}
 
-#player{
-
-}
 
 #vid-box{
     height: 100%;
@@ -117,11 +146,10 @@ h2 {
 .thumbnail{
     border: none;
 }
+
 .vertical-title {
     width: 40px;
     height: 100%;
-    background-color: blue;
-
 }
 
 .vertical-title div{
@@ -130,7 +158,6 @@ h2 {
     font-size: 32px;
     line-height: 30px;
     margin-left: 35%;
-    color: white;
     margin-top: 50%;
 }
 
@@ -225,3 +252,33 @@ controls-image {
 #lyrics-pane .content {
     width:100%;
 }
+
+.bubble-enter {
+  opacity: 0.01;
+}
+
+.bubble-enter.bubble-enter-active {
+  opacity: 1;
+  transition: opacity 200ms;
+}
+
+.bubble-leave {
+  opacity: 1;
+}
+
+.bubble-leave.bubble-leave-active {
+  opacity: 0.01;
+  transition: opacity 200ms ease-in;
+}
+
+.hide-bubbles {
+    display: none;
+}
+
+#hider {
+    cursor: pointer;
+}
+
+#settings-pane label {
+     color: white;
+ }

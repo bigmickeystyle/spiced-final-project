@@ -42,6 +42,7 @@ module.exports = {
             YoutubeBackground: 'app/components/YoutubeBackground.jsx',
             ProgressBar: 'app/components/ProgressBar.jsx',
             SceneryResults: 'app/components/SceneryResults.jsx',
+            Settings: 'app/components/Settings.jsx',
             getLastFM: 'app/api/getLastFM.jsx',
             getSpotify: 'app/api/getSpotify.jsx',
             getDiscog: 'app/api/getDiscog.jsx',
@@ -52,7 +53,12 @@ module.exports = {
             jQuery: 'node_modules/jquery/dist/jquery.min.js',
             PlayerWidget: 'app/components/PlayerWidget.jsx',
             YoutubeControls: 'app/components/YoutubeControls.jsx',
-            funcs: 'app/components/funcs.js'
+            funcs: 'app/components/funcs.js',
+            Profile: 'app/components/Profile.jsx',
+            Register: 'app/components/Register.jsx',
+            LogIn: 'app/components/LogIn.jsx',
+            EditProfile: 'app/components/EditProfile.jsx',
+            RegisterForm: 'app/components/RegisterForm.jsx'
         }
     },
     module: {

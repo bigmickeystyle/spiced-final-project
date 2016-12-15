@@ -21,8 +21,13 @@ var YoutubeResults = require('YoutubeResults');
 var YoutubeBackground = require('YoutubeBackground');
 var ProgressBar = require('ProgressBar');
 var SceneryResults = require('SceneryResults');
+var Settings = require('Settings');
 var funcs = require('funcs');
 var getSpotify = require('getSpotify');
+var axios = require('axios');
+
+var ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+
 
 var timer = {};
 var zIndex = 3;
@@ -30,11 +35,11 @@ var renderedPanes = [];
 var player;
 var nowLoaded = false;
 var percent = 0;
-var options = ['Search', 'Spotify', 'Youtube', 'Lyrics', 'Live', 'News', 'Recent', 'Playlist'];
+var options = ['Search', 'Spotify', 'Youtube', 'Lyrics', 'Live', 'News', 'Recent', 'Playlist', 'Settings'];
 var videoProgress;
 var mouseDown = false;
 
-var initialPlaylist = ['ukc-au8UtlQ?t=2s', 'cO_IFJaWmhA', 'LHQqqM5sr7g', 'cJIe5oFPZEw'];
+var initialPlaylist = ['cJIe5oFPZEw', 'cO_IFJaWmhA', 'LHQqqM5sr7g', 'ukc-au8UtlQ'];
 var initialPlaylistTrack = 0;
 
 var optionsMap = {
@@ -52,7 +57,8 @@ var optionsMap = {
     'controls': 'controls',
     'youtube-pane': 'youtube',
     'progress-bar': 'progress',
-    'sceneries-results': 'sceneries'
+    'sceneries-results': 'sceneries',
+    'settings-pane': "settings"
 };
 
 var paneMap = {};
@@ -61,9 +67,46 @@ for (var key in optionsMap){
     paneMap[optionsMap[key]] = key;
 }
 
+
 var Player = React.createClass({
 
+    componentWillMount: function(){
+        var thisState = this;
+        axios.get('/check').then(function(results){
+            if(results.data.state){
+                thisState.setState(results.data.state);
+            }
+        });
+    },
+
+    save: function(){
+        var thisState = this;
+        renderedPanes.forEach(function(renderedPane){
+            var savePos = {};
+            var closedPos = `${renderedPane}Pos`;
+            savePos[closedPos] = {
+                top: parseInt($(`#${paneMap[renderedPane]}`).css('top')),
+                left: parseInt($(`#${paneMap[renderedPane]}`).css('left')),
+                height: parseInt($(`#${paneMap[renderedPane]}`).css('height')),
+                width: parseInt($(`#${paneMap[renderedPane]}`).css('width'))
+            };
+            thisState.setState(savePos);
+        });
+        var data = this.state;
+        data.player = 0;
+        data.albums = 0;
+        data.artists = 0;
+        data.playist = 0;
+        console.log(data);
+        axios({
+            method: 'POST',
+            url: '/bye',
+            data: data
+        });
+    },
+
     getInitialState: function(){
+        console.log("hi");
         return {
             optionsPane: {
                 open: true,
@@ -125,11 +168,17 @@ var Player = React.createClass({
                 open: false,
                 locked: false
             },
+            settingsPane: {
+                open: false,
+                locked: false
+            },
             username: 'braveshave',
             playlist: [],
             paused: false,
             youtubeEnabled: true,
             progress: 0,
+            theme: 'default',
+            uri: "spotify:album:3ZqqvWwHzoVCxwdsaUaF9z",
             controlsPos: {
                 top: 62,
                 left: 1204,
@@ -220,9 +269,14 @@ var Player = React.createClass({
                 height: 206,
                 width: 300
             },
-            savedPos: {}
-
+            settingsPos: {
+                top: 171,
+                left: 216,
+                height: 206,
+                width: 300
+            }
         };
+
     },
 
     resize: function(pane, eventStart) {
@@ -230,6 +284,7 @@ var Player = React.createClass({
         var startLeft = eventStart.pageX;
         var startCssHeight = parseInt(($(`#${pane}`).css('height')));
         var startTop = eventStart.pageY;
+        var that = this;
         $(document).on('mousemove.arrowmove', function(e){
             e.preventDefault();
             var movementX = e.pageX;
@@ -240,6 +295,7 @@ var Player = React.createClass({
         $(document).on('mouseup.arrowstop', function(){
             $(this).off('.arrowmove');
             $(this).off('.arrowstop');
+            that.save();
         });
     },
 
@@ -292,7 +348,11 @@ var Player = React.createClass({
     },
 
     xUnhighlight: function(pane){
-        $(`#${pane}`).css({border: 'none'});
+        if(!this.state[`${optionsMap[pane]}Pane`].locked){
+            $(`#${pane}`).css({border: 'none'});
+        } else if (this.state[`${optionsMap[pane]}Pane`].locked) {
+            $(`#${pane}`).css({border: '5px blue solid'});
+        }
         timer[pane] = setTimeout(function(){
             $(`#${pane}-x`).css({display: 'none'});
             $(`#${pane}Arrow`).css({display: 'none'});
@@ -339,6 +399,7 @@ var Player = React.createClass({
 
     move: function(pane, eventStart) {
         mouseDown = true;
+        var that = this;
         if(!this.state[`${optionsMap[pane]}Pane`].locked){
             var startLeft = eventStart.pageX - parseInt($(`#${pane}`).css('left'));
             var startTop = eventStart.pageY - parseInt($(`#${pane}`).css('top'));
@@ -357,6 +418,7 @@ var Player = React.createClass({
             });
             $(document).on('mouseup.boxstop', function(){
                 mouseDown = false;
+                that.save();
                 $(this).off('.boxmove');
                 $(this).off('.boxstop');
             });
@@ -535,7 +597,6 @@ var Player = React.createClass({
             }
         });
         getSpotify.getAlbum(id).then(function(albumSpotDetails){
-            console.log(albumSpotDetails);
             thisState.setState({
                 currentArtist: albumSpotDetails.artists[0].name,
                 albumLoading: false,
@@ -547,23 +608,34 @@ var Player = React.createClass({
     },
 
     handleNextTrack: function(){
+        var {trackResults, currentTrackNum, currentArtist} = this.state;
         percent = 0;
         clearInterval(videoProgress);
-        $('#progress-bar-title').css({width: '0%'});
-        var {trackResults, currentTrackNum, currentArtist} = this.state;
-        var thisState = this;
-        trackResults.forEach(function(albumTrack){
-            if (albumTrack['track_number'] == currentTrackNum) {
-                getYoutube.getVideo(currentArtist, trackResults[currentTrackNum % trackResults.length].name).then(function(nextTrack){
-                    player.loadVideoById(nextTrack[0].id.videoId);
-                });
-                thisState.setState({
-                    currentTrackNum: (currentTrackNum + 1) % trackResults.length,
-                    currentTrack: trackResults[currentTrackNum % trackResults.length].name,
-                    lyrics: false
-                });
+        if (trackResults) {
+            $('#progress-bar-title').css({width: '0%'});
+            var thisState = this;
+            trackResults.forEach(function(albumTrack){
+                if (albumTrack['track_number'] == currentTrackNum) {
+                    getYoutube.getVideo(currentArtist, trackResults[currentTrackNum % trackResults.length].name).then(function(nextTrack){
+                        player.loadVideoById(nextTrack[0].id.videoId);
+                    });
+                    thisState.setState({
+                        currentTrackNum: (currentTrackNum + 1) % trackResults.length,
+                        currentTrack: trackResults[currentTrackNum % trackResults.length].name,
+                        lyrics: false
+                    });
+                }
+            });
+        } else if (initialPlaylist){
+            initialPlaylistTrack += 1;
+            if (initialPlaylistTrack == initialPlaylist.length) {
+                initialPlaylistTrack = 0;
             }
-        });
+            console.log(initialPlaylist[initialPlaylistTrack]);
+            player.loadVideoById(initialPlaylist[initialPlaylistTrack]);
+        } else {
+            player.loadVideoById("DLzxrzFCyOs");
+        }
     },
 
     handlePrevTrack: function(){
@@ -607,7 +679,7 @@ var Player = React.createClass({
                 currentYoutubeResults: videoDetails
             });
             var firstResult = videoDetails[0].id.videoId;
-            thisState.state.player.loadVideoById(firstResult);
+            player.loadVideoById(firstResult);
         });
         if (lyricsPane.open){
             thisState.handleNewLyrics(artist, track);
@@ -661,13 +733,19 @@ var Player = React.createClass({
 
     handleClickedOption: function(option){
         option = option.toLowerCase();
-        var savedPos = {
-            top: parseInt($(`#${paneMap[option]}`).css('top')),
-            left: parseInt($(`#${paneMap[option]}`).css('left')),
-            height: parseInt($(`#${paneMap[option]}`).css('height')),
-            width: parseInt($(`#${paneMap[option]}`).css('width'))
-        };
-        funcs.toggleOptions(option, this, savedPos);
+        var thisState = this;
+        renderedPanes.forEach(function(renderedPane){
+            var savePos = {};
+            var closedPos = `${renderedPane}Pos`;
+            savePos[closedPos] = {
+                top: parseInt($(`#${paneMap[renderedPane]}`).css('top')),
+                left: parseInt($(`#${paneMap[renderedPane]}`).css('left')),
+                height: parseInt($(`#${paneMap[renderedPane]}`).css('height')),
+                width: parseInt($(`#${paneMap[renderedPane]}`).css('width'))
+            };
+            thisState.setState(savePos);
+        });
+        funcs.toggleOptions(option, this);
     },
 
     handleNewYoutubeVideo: function(id){
@@ -683,14 +761,14 @@ var Player = React.createClass({
 
     handlePause: function(){
         if (this.state.paused){
-            this.state.player.playVideo();
+            player.playVideo();
             this.setState({
                 paused: false
             });
             $('#play-img').attr('src', './images/pause.png');
         } else {
             clearInterval(videoProgress);
-            this.state.player.pauseVideo();
+            player.pauseVideo();
             this.setState({
                 paused: true
             });
@@ -731,7 +809,7 @@ var Player = React.createClass({
         var width = parseInt($('#progress-bar').css('width'));
         percent = Math.floor(x/width*100);
         $('#progress-bar-title').css({'width': x + 5});
-        this.state.player.seekTo(this.state.currentDuration/100*percent);
+        player.seekTo(this.state.currentDuration/100*percent);
         percent += 1;
     },
 
@@ -757,19 +835,32 @@ var Player = React.createClass({
         }
     },
 
+    handleChangedTheme: function (theme) {
+        $('.player-container').removeClass(this.state.theme).addClass(theme);
+        $('.vertical-title').removeClass(`vertical-${this.state.theme}`).addClass(`vertical-${theme}`);
+        this.setState({
+            theme: theme
+        });
+    },
+
+    componentWillUnmount: function (){
+        nowLoaded = false;
+        clearInterval(videoProgress);
+        percent = 0;
+    },
 
     render: function () {
         var {isLoadingArtists, artist, artists, albums, news, uri, trackResults, lyrics, currentYoutubeResults,
             isLoadingAlbum, isLoadingTracks, sceneriesPane, sceneriesPos, sceneries, isLoadingSceneries,
             searchPane, spotifyPane, controlsPane, lyricsPane, livePane, newsPane, recentPane, artistsPane, albumsPane, tracksPane,
-            albumLoading, newsLoading, lyricsLoading, playlistPane, youtubePane,
+            albumLoading, newsLoading, lyricsLoading, playlistPane, youtubePane, settingsPane,
             currentArtist, currentTrack, playlist, youtubeEnabled, progress,
             controlsPos, optionsPos, progressPos, spotifyPos, artistsPos, albumsPos, tracksPos, searchPos, lyricsPos, newsPos, livePos, playlistPos, youtubePos, recentPos,
-            recentScrobbles, username} = this.state;
+            settingsPos, recentScrobbles, username, theme} = this.state;
 
         var {handleClickedOption, handleNewClickedAlbum, handleNewClickedTrack, handleNewClickedArtist, handleNewArtist, handleNewAlbum, handleNewTrack, handleScrobbles,
             handleMute, handleNextTrack, handlePrevTrack, handleNewLyrics, handleNewYoutubeVideo, handlePause, handlePlayerStart, handleProgress, setDuration,
-            handleProgressChange, handleNewNews, handleNewScenery,
+            handleProgressChange, handleNewNews, handleNewScenery, handleChangedTheme,
             move, resize, highlight, unhighlight, sizeHighlight, sizeUnhighlight, xHighlight, xUnhighlight, lockHighlight, lockUnhighlight, closePane, lockPane} = this;
 
         function renderAlbumResults(){
@@ -787,7 +878,13 @@ var Player = React.createClass({
                 return (
                     albumArray
                     .map(function(album, i){
-                        return <AlbumResults artist={artist} id={album.id} album={album.name} onClickedAlbum={handleNewClickedAlbum} key={i}/>;
+                        var imgIndex = Math.floor(Math.random() * album.images.length);
+                        if (album.images[imgIndex]) {
+                            var url = album.images[imgIndex].url;
+                        } else {
+                            url = "./images/ken.jpg";
+                        }
+                        return <AlbumResults artist={artist} image={url} id={album.id} album={album.name} onClickedAlbum={handleNewClickedAlbum} key={i}/>;
                     })
                 );
             }
@@ -867,7 +964,7 @@ var Player = React.createClass({
         function renderLyrics(){
             if(lyricsLoading) {
                 return (
-                    <h2>Searching</h2>
+                    <div>Searching</div>
                 );
             } else if(lyrics) {
                 lyrics = lyrics.split('\n');
@@ -898,7 +995,7 @@ var Player = React.createClass({
                     })
                 );
             } else if(currentArtist){
-                handleNewNews(currentArtist)
+                handleNewNews(currentArtist);
             } else {
                 return (
                     <h2>No news available</h2>
@@ -944,6 +1041,10 @@ var Player = React.createClass({
 
         }
 
+        function renderSettings() {
+            return <Settings onChange={handleChangedTheme}/>;
+        }
+
         function newContainer(key, content, type, position, title){
             var lockLeft = position.left + 25;
             var arrowLeft = position.left + position.width - 20;
@@ -951,6 +1052,7 @@ var Player = React.createClass({
             zIndex += 1;
             return <PlayerContainer
                     key={key}
+                    theme={theme}
                     content={content}
                     type={type}
                     resize={resize.bind(null, type)}
@@ -993,7 +1095,6 @@ var Player = React.createClass({
 
         function renderYoutube(){
             if (YT.loaded && !nowLoaded) {
-                console.log("loading!");
                 player = new YT.Player('player', {
                     height: '100%',
                     width: '100%',
@@ -1012,7 +1113,6 @@ var Player = React.createClass({
                     }
                 });
                 if (player.h) {
-                    console.log(player);
                     nowLoaded = true;
                 }
             }
@@ -1024,7 +1124,6 @@ var Player = React.createClass({
             }
 
             function onPlayerChange(e){
-                console.log(e.data);
                 if(player.getDuration()){
                     setDuration(player.getDuration());
                 }
@@ -1039,14 +1138,15 @@ var Player = React.createClass({
                     else {
                         handleNextTrack();
                     }
-                }
-                if (e.data == 1){
+                } else if (e.data == 1){
                     handleProgress();
+                } else if (e.data == 3) {
+                    console.log("buffering");
+                    clearInterval(videoProgress);
                 }
             }
             setTimeout(function(){
                 if(!nowLoaded){
-                    console.log("rendering");
                     renderYoutube();
                 }
             }, 500);
@@ -1056,6 +1156,7 @@ var Player = React.createClass({
             var renderArray=[newContainer(0, renderOptions(), 'options', optionsPos, "menu")];
             var renderKey = 1;
             renderedPanes = ['options'];
+
 
             if (controlsPane.open){
                 renderArray.push(<Video key={renderKey}/>);
@@ -1128,15 +1229,28 @@ var Player = React.createClass({
                 renderArray.push(newContainer(renderKey, renderYoutubeResults(), 'youtube-pane', youtubePos, "youtube"));
                 renderKey++;
                 renderedPanes.push('youtube');
-            } if (youtubeEnabled){
+            }
+
+            if (settingsPane.open) {
+                renderArray.push(newContainer(renderKey, renderSettings(), 'settings-pane', settingsPos, "settings"));
+                renderKey++;
+                renderedPanes.push('settings');
+            }
+
+            if (youtubeEnabled){
                 {renderYoutube();}
             }
+
             return renderArray;
         }
-
         return (
             <div>
-                {renderContainers()}
+                <ReactCSSTransitionGroup
+                   transitionName="bubble"
+                   transitionEnterTimeout={300}
+                   transitionLeaveTimeout={300}>
+                   {renderContainers()}
+                </ReactCSSTransitionGroup>
             </div>
 
         );
