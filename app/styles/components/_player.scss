@@ -143,6 +143,10 @@ body{
     width: 50px;
 }
 
+.news-image {
+    width: 50px;
+}
+
 .thumbnail{
     border: none;
 }
@@ -282,3 +286,12 @@ controls-image {
 #settings-pane label {
      color: white;
  }
+
+ #news-pane .content {
+     width: 100%;
+ }
+
+#news-pane .news-item {
+    margin-right: 45px;
+    margin-top: 10px;
+}

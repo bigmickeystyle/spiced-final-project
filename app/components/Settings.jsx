@@ -6,10 +6,11 @@ var Settings = React.createClass({
     },
 
     render: function(){
+        var {currentTheme} = this.props;
         return(
             <label>
                 Theme
-                    <select onChange={this.onChangedTheme}>
+                    <select value={currentTheme} onChange={this.onChangedTheme}>
                         <option value="default">Default</option>
                         <option value="sunrise">Sunrise</option>
                         <option value="transparent`">Transparent</option>

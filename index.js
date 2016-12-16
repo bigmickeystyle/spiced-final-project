@@ -29,7 +29,6 @@ app.get('/check', function (req, res, next){
 
 app.post('/bye', function(req, res){
     res.cookie('state', req.body);
-    console.log(req.cookies.state);
     res.json({
         success: true
     });
@@ -69,7 +68,6 @@ app.get('/lyrics', function(req, res) {
 
 app.get('/news', function(req, res) {
     console.log("getting news for", req.query.artist);
-    console.log(req.cookies);
     getBingNews.music(req.query.artist).then(function(response){
         res.json({
             success:true,

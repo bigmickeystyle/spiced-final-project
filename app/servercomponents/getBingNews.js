@@ -2,7 +2,8 @@ var axios = require('axios');
 
 module.exports = {
     music: function (artist) {
-        var newsUrl = `https://api.cognitive.microsoft.com/bing/v5.0/news/search?q=${artist}&count=10&mkt=en-US`;
+        var encodedSearch = encodeURIComponent(artist + " music");
+        var newsUrl = `https://api.cognitive.microsoft.com/bing/v5.0/news/search?q=${encodedSearch}&count=10&mkt=en-US`;
         return axios({
             method: 'GET',
             url: newsUrl,
